@@ -1,8 +1,15 @@
-import express from "express";
-import dotenv from "dotenv";
-import cookieParser from "cookie-parser";
-import cors from "cors";
+// This file is the entry point of the backend server
 
+// - index.js connects to MongoDB (the database) 
+// - index.js initialize app with json (store and exchange data) && cookie middleware (reads cookies)
+// - index.js registers routs for auth && messaging && the API of a user
+// - index.js use soket.io in order to have real time communication 
+// - index.js starts the server on port 5000 (local web servers)
+
+import express from "express"; // type of Node.js web framework
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser"; //reads and parses the cookies into a JS object
+import cors from "cors"; // allows the server to receive different sources
 import path from "path";
 
 import { connectDB } from "./lib/db.js";
@@ -11,14 +18,14 @@ import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { app, server } from "./lib/socket.js";
 
-dotenv.config();
+dotenv.config(); // loads environment var into Node.js
 
 const PORT = process.env.PORT;
-const __dirname = path.resolve();
+const __dirname = path.resolve(); // the path of the project folder
 
-app.use(express.json());
-app.use(cookieParser());
-app.use(
+app.use(express.json()); // automatic JSON parsing in request bodies
+app.use(cookieParser()); // adds req.cookies 
+app.use( // sets CORS in order for the backend to accept requests from the frontend 
   cors({
     origin: "http://localhost:5173",
     credentials: true,
@@ -28,11 +35,11 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+if (process.env.NODE_ENV === "production") { // checks production mode
+  app.use(express.static(path.join(__dirname, "../frontend/dist"))); // serves the static files from  dist
+ 
+  app.get("*", (req, res) => {  // doesnt matched the backend API
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html")); // return index.html and then the React app shows the chat page. 
   });
 }
 
