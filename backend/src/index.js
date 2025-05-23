@@ -23,7 +23,7 @@ dotenv.config(); // loads environment var into Node.js
 const PORT = process.env.PORT;
 const __dirname = path.resolve(); // the path of the project folder
 
-app.use(express.json()); // automatic JSON parsing in request bodies
+app.use(express.json({ limit: "10mb" })); // automatic JSON parsing in request bodies
 app.use(cookieParser()); // adds req.cookies 
 app.use( // sets CORS in order for the backend to accept requests from the frontend 
   cors({
