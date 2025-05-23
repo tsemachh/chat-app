@@ -4,7 +4,7 @@
 // - index.js initialize app with json (store and exchange data) && cookie middleware (reads cookies)
 // - index.js registers routs for auth && messaging && the API of a user
 // - index.js use soket.io in order to have real time communication 
-// - index.js starts the server on port 5000 (local web servers)
+// - index.js starts the server on port 5001
 
 import express from "express"; // type of Node.js web framework
 import dotenv from "dotenv";
