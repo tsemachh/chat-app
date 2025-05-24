@@ -1,3 +1,8 @@
+// This file defines and exports an asynchronous function 'connectDB'
+
+// - connectDB connects the app to MongoDB
+// - connectDB logs a success message if the connection was successful
+
 import mongoose from "mongoose";
 
 export const connectDB = async () => {

@@ -38,7 +38,7 @@ app.use("/api/messages", messageRoutes);
 if (process.env.NODE_ENV === "production") { // checks production mode
   app.use(express.static(path.join(__dirname, "../frontend/dist"))); // serves the static files from  dist
  
-  app.get("*", (req, res) => {  // doesnt matched the backend API
+  app.get("*", (req, res) => {  // if the file doesnt matched the backend API
     res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html")); // return index.html and then the React app shows the chat page. 
   });
 }
