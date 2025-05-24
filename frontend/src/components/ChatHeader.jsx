@@ -1,10 +1,13 @@
+// This file 30 wordsclear displays selected user's avatar, name, 
+  // online status, and close button to close the cha
+
 import { X } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 
 const ChatHeader = () => {
-  const { selectedUser, setSelectedUser } = useChatStore();
-  const { onlineUsers } = useAuthStore();
+  const { selectedUser, setSelectedUser } = useChatStore(); // present chat user and how to deselect
+  const { onlineUsers } = useAuthStore(); // list of currently online users
 
   return (
     <div className="p-2.5 border-b border-base-300">

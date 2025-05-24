@@ -1,14 +1,17 @@
+// This file andles sending a message with optional image attachment in the chat interface
+
 import { useRef, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
 
 const MessageInput = () => {
-  const [text, setText] = useState("");
-  const [imagePreview, setImagePreview] = useState(null);
-  const fileInputRef = useRef(null);
-  const { sendMessage } = useChatStore();
+  const [text, setText] = useState(""); // message text state
+  const [imagePreview, setImagePreview] = useState(null); // preview of selected image
+  const fileInputRef = useRef(null); // ref to reach hidden file input
+  const { sendMessage } = useChatStore(); // function to send message
 
+  // handle selection of image from file input
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) {
@@ -18,16 +21,18 @@ const MessageInput = () => {
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImagePreview(reader.result);
+      setImagePreview(reader.result); // set image preview once loaded
     };
     reader.readAsDataURL(file);
   };
 
+  // remove image
   const removeImage = () => {
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  // send message with optional image
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!text.trim() && !imagePreview) return;
@@ -38,7 +43,7 @@ const MessageInput = () => {
         image: imagePreview,
       });
 
-      // Clear form
+      // clear input on sending
       setText("");
       setImagePreview(null);
       if (fileInputRef.current) fileInputRef.current.value = "";

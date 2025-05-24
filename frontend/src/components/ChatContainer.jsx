@@ -1,3 +1,5 @@
+// This file is the main chat interface component: displays header, messages (image & text), and input with live updating
+
 import { useChatStore } from "../store/useChatStore";
 import { useEffect, useRef } from "react";
 
@@ -7,7 +9,7 @@ import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
 import { formatMessageTime } from "../lib/utils";
 
-const ChatContainer = () => {
+const ChatContainer = () => { // global chat and auth state
   const {
     messages,
     getMessages,
@@ -17,23 +19,23 @@ const ChatContainer = () => {
     unsubscribeFromMessages,
   } = useChatStore();
   const { authUser } = useAuthStore();
-  const messageEndRef = useRef(null);
+  const messageEndRef = useRef(null); // ref to scroll to latest message
 
-  useEffect(() => {
-    getMessages(selectedUser._id);
+  useEffect(() => { // load messages and start socket subscription on mount / when user changes
+    getMessages(selectedUser._id); // load previous messages
 
-    subscribeToMessages();
+    subscribeToMessages();  //listen for new incoming messages
 
     return () => unsubscribeFromMessages();
   }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
 
-  useEffect(() => {
-    if (messageEndRef.current && messages) {
+  useEffect(() => { // scroll to bottom on update of messages
+    if (messageEndRef.current && messages) { 
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
-  if (isMessagesLoading) {
+  if (isMessagesLoading) { // display skeleton UI while loading
     return (
       <div className="flex-1 flex flex-col overflow-auto">
         <ChatHeader />
