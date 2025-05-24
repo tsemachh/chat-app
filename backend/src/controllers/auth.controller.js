@@ -1,8 +1,11 @@
-import { generateToken } from "../lib/utils.js";
+// This file exports controller functions that handle user authentication and profile
+
+import { generateToken } from "../lib/utils.js"; // set it in the cookie
 import User from "../models/user.model.js";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcryptjs"; // hashing and verifying passwords
 import cloudinary from "../lib/cloudinary.js";
 
+// registers new users and stores them in the database
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
   try {
@@ -47,6 +50,7 @@ export const signup = async (req, res) => {
   }
 };
 
+// logs in a user and returns a JWT token (if credentials are ok)
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -75,6 +79,7 @@ export const login = async (req, res) => {
   }
 };
 
+// logs out the user by clearing the JWT cookie
 export const logout = (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
@@ -85,6 +90,7 @@ export const logout = (req, res) => {
   }
 };
 
+// updates user's profile picture (with Cloudinary)
 export const updateProfile = async (req, res) => {
   try {
     const { profilePic } = req.body;
@@ -108,6 +114,7 @@ export const updateProfile = async (req, res) => {
   }
 };
 
+// returns the authenticated user's data (frontend)
 export const checkAuth = (req, res) => {
   try {
     res.status(200).json(req.user);
