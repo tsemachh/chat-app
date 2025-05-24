@@ -1,3 +1,7 @@
+// This file is the main chat layout page
+
+// - HomePage.jsx shows Sidebar and either the chat interface or a placeholder if no user is selected
+
 import { useChatStore } from "../store/useChatStore";
 
 import Sidebar from "../components/Sidebar";
@@ -5,15 +9,20 @@ import NoChatSelected from "../components/NoChatSelected";
 import ChatContainer from "../components/ChatContainer";
 
 const HomePage = () => {
-  const { selectedUser } = useChatStore();
+  const { selectedUser } = useChatStore(); // Current chat target (null if none selected)
 
   return (
     <div className="h-screen bg-base-200">
+      {/* Centered container with top padding */}
       <div className="flex items-center justify-center pt-20 px-4">
+        {/* Main chat window box */}
         <div className="bg-base-100 rounded-lg shadow-cl w-full max-w-6xl h-[calc(100vh-8rem)]">
           <div className="flex h-full rounded-lg overflow-hidden">
+            
+            {/* Sidebar with contact list */}
             <Sidebar />
 
+            {/* Main content: either welcome screen or active chat */}
             {!selectedUser ? <NoChatSelected /> : <ChatContainer />}
           </div>
         </div>
@@ -21,4 +30,5 @@ const HomePage = () => {
     </div>
   );
 };
+
 export default HomePage;

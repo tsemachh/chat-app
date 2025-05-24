@@ -1,3 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* This file enables base styles, components, and utility classes */
+
+@tailwind base; /* injects Tailwind’s base styles (preflight/reset) */
+@tailwind components; /* includes custom component classes defined via Tailwind plugins or layers */
+@tailwind utilities; /* enables all utility classes */

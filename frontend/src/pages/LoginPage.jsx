@@ -1,3 +1,5 @@
+// This file is the Login screen + a visual pattern on large screens.
+
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import AuthImagePattern from "../components/AuthImagePattern";
@@ -5,24 +7,32 @@ import { Link } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
 
 const LoginPage = () => {
+  // Local state to toggle password visibility
   const [showPassword, setShowPassword] = useState(false);
+
+  // Controlled form data
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  // Auth store actions and state
   const { login, isLoggingIn } = useAuthStore();
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    login(formData);
+    login(formData); // Trigger login with email and password
   };
 
   return (
     <div className="h-screen grid lg:grid-cols-2">
-      {/* Left Side - Form */}
+      
+      {/* Left Side – Login Form */}
       <div className="flex flex-col justify-center items-center p-6 sm:p-12">
         <div className="w-full max-w-md space-y-8">
-          {/* Logo */}
+
+          {/* Logo and Welcome Text */}
           <div className="text-center mb-8">
             <div className="flex flex-col items-center gap-2 group">
               <div
@@ -36,8 +46,10 @@ const LoginPage = () => {
             </div>
           </div>
 
-          {/* Form */}
+          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            
+            {/* Email Input */}
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-medium">Email</span>
@@ -48,7 +60,7 @@ const LoginPage = () => {
                 </div>
                 <input
                   type="email"
-                  className={`input input-bordered w-full pl-10`}
+                  className="input input-bordered w-full pl-10"
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -56,6 +68,7 @@ const LoginPage = () => {
               </div>
             </div>
 
+            {/* Password Input with Visibility Toggle */}
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-medium">Password</span>
@@ -66,7 +79,7 @@ const LoginPage = () => {
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`input input-bordered w-full pl-10`}
+                  className="input input-bordered w-full pl-10"
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -85,6 +98,7 @@ const LoginPage = () => {
               </div>
             </div>
 
+            {/* Submit Button */}
             <button type="submit" className="btn btn-primary w-full" disabled={isLoggingIn}>
               {isLoggingIn ? (
                 <>
@@ -97,6 +111,7 @@ const LoginPage = () => {
             </button>
           </form>
 
+          {/* Link to Signup */}
           <div className="text-center">
             <p className="text-base-content/60">
               Don&apos;t have an account?{" "}
@@ -108,7 +123,7 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* Right Side - Image/Pattern */}
+      {/* Right Side – Decorative Grid Pattern (only on large screens) */}
       <AuthImagePattern
         title={"Welcome back!"}
         subtitle={"Sign in to continue your conversations and catch up with your messages."}
@@ -116,4 +131,5 @@ const LoginPage = () => {
     </div>
   );
 };
+
 export default LoginPage;

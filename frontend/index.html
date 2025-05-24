@@ -1,13 +1,24 @@
+<!-- This file is the HTML entry point for the React app  -->
+
+<!-- 
+- index.html sets basic metadata like character encoding and viewport
+- index.html loads favicon and page title
+- index.html defines a root <div> where the React app will be rendered
+- index.html loads the main React entry script (main.jsx) using ES module syntax
+-->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Realtime Chat App</title>
+    <meta charset="UTF-8" /> <!-- Character encoding -->
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" /> <!-- Favicon icon -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- Responsive scaling -->
+    <title>Realtime Chat App</title> <!-- Page title -->
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"></div> <!-- React mounts here -->
+
+    <!-- Main script that bootstraps the React app -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

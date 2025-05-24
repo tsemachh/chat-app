@@ -1,3 +1,5 @@
+// This file displays users list for discussions, with optional online-only toggle
+
 import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
@@ -5,22 +7,30 @@ import SidebarSkeleton from "./skeletons/SidebarSkeleton";
 import { Users } from "lucide-react";
 
 const Sidebar = () => {
+   // get chat state and actions
   const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
 
+  // auth state of online users
   const { onlineUsers } = useAuthStore();
+
+  // local state for "online only" toggle
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
+  // mount and load all users
   useEffect(() => {
     getUsers();
   }, [getUsers]);
 
+  // filter with toggle if enabled
   const filteredUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
 
+  // render DOM skeleton during user loading
   if (isUsersLoading) return <SidebarSkeleton />;
 
   return (
+    // sidebar container: shrinks to icon-only state on small screens
     <aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
       <div className="border-b border-base-300 w-full p-5">
         <div className="flex items-center gap-2">
@@ -46,7 +56,7 @@ const Sidebar = () => {
         {filteredUsers.map((user) => (
           <button
             key={user._id}
-            onClick={() => setSelectedUser(user)}
+            onClick={() => setSelectedUser(user)} // choose this user to chat
             className={`
               w-full p-3 flex items-center gap-3
               hover:bg-base-300 transition-colors

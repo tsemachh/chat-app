@@ -1,3 +1,5 @@
+# This file specifies files and directories that should be excluded from Git version control
+
 # Logs
 logs
 *.log

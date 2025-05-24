@@ -1,3 +1,5 @@
+// This file exported array of all the UI themes present in the app (DaisyUI theme names)
+
 export const THEMES = [
   "light",
   "dark",

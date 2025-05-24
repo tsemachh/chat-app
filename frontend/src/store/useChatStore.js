@@ -1,15 +1,21 @@
+// This file is a Zustand store that manages chat state
+  //  including messages, users, selected user
+  //  real-time socket listeners
+
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
 import { useAuthStore } from "./useAuthStore";
 
 export const useChatStore = create((set, get) => ({
+  // Chat-related state
   messages: [],
   users: [],
   selectedUser: null,
   isUsersLoading: false,
   isMessagesLoading: false,
 
+  // Fetch all users available for chat
   getUsers: async () => {
     set({ isUsersLoading: true });
     try {
@@ -22,6 +28,7 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // Fetch messages between logged-in user and selected user
   getMessages: async (userId) => {
     set({ isMessagesLoading: true });
     try {
@@ -33,6 +40,8 @@ export const useChatStore = create((set, get) => ({
       set({ isMessagesLoading: false });
     }
   },
+
+  // Send a new message to the selected user
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();
     try {
@@ -43,6 +52,7 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // Listen for incoming messages via socket
   subscribeToMessages: () => {
     const { selectedUser } = get();
     if (!selectedUser) return;
@@ -53,16 +63,19 @@ export const useChatStore = create((set, get) => ({
       const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
       if (!isMessageSentFromSelectedUser) return;
 
+      // Append new message if it's from the current chat partner
       set({
         messages: [...get().messages, newMessage],
       });
     });
   },
 
+  // Stop listening to socket events
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
     socket.off("newMessage");
   },
 
+  // Select a user to chat with
   setSelectedUser: (selectedUser) => set({ selectedUser }),
 }));
