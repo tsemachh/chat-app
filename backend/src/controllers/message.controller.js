@@ -2,35 +2,22 @@
 
 import User from "../models/user.model.js"
 import Message from "../models/message.model.js";
-import { Worker, isMainThread, parentPort, workerData, threadId } from 'worker_threads';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 import cloudinary from "../lib/cloudinary.js";
-import { getReceiverSocketId, io, encrypt, decrypt } from "../lib/socket.js";
+import { getReceiverSocketId, io } from "../lib/socket.js";
+import { Worker } from "worker_threads";
+import path from "path";
+import { fileURLToPath } from "url";
+import { encryptText, decryptText } from "../lib/encryption.js";
 
-// Worker pool for message processing
-const NUM_MESSAGE_WORKERS = 2;
-const messageWorkers = [];
-
-// Initialize message worker pool
-if (isMainThread) {
-  const __filename = fileURLToPath(import.meta.url);
-  const workerPath = path.resolve(__filename);
-
-  for (let i = 0; i < NUM_MESSAGE_WORKERS; i++) {
-    const worker = new Worker(workerPath, {
-      workerData: { workerId: i, type: 'message-worker' }
-    });
-    messageWorkers.push(worker);
-  }
-}
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // returns a list of all users except the currently user
 export const getUsersForSidebar = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
-    // finds all the users except the currently one making the request 
+        // finds all the users except the currently one making the request 
     const filteredUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
 
     res.status(200).json(filteredUsers);
@@ -54,19 +41,24 @@ export const getMessages = async (req, res) => {
       ],
     });
 
-    // Decrypt messages before sending to client
+    // Decrypt messages for client
     const decryptedMessages = messages.map(message => {
-      const msg = message.toObject();
-      if (msg.encryptedText) {
-        try {
-          msg.text = decrypt(msg.encryptedText);
-          delete msg.encryptedText;
-        } catch (err) {
-          console.error("Error decrypting message:", err);
-          msg.text = "Message could not be decrypted";
+      try {
+        if (message.encryptedData) {
+          return {
+            ...message.toObject(),
+            text: decryptText(message.encryptedData),
+            encryptedData: undefined
+          };
         }
+        return message.toObject();
+      } catch (error) {
+        console.error("Error decrypting message:", error);
+        return {
+          ...message.toObject(),
+          text: "[Message could not be decrypted]"
+        };
       }
-      return msg;
     });
 
     res.status(200).json(decryptedMessages);
@@ -76,146 +68,85 @@ export const getMessages = async (req, res) => {
   }
 };
 
-// Process message in a worker thread
-const processMessageInWorker = (data) => {
-  return new Promise((resolve, reject) => {
-    // Select a worker from the pool
-    const workerIndex = Math.floor(Math.random() * NUM_MESSAGE_WORKERS);
-    const worker = messageWorkers[workerIndex];
-
-    // Create a unique ID for this request
-    const requestId = Date.now() + Math.random().toString(36).substring(2, 15);
-
-    // Set up a one-time listener for this specific request
-    const messageHandler = (message) => {
-      if (message.requestId === requestId) {
-        worker.removeListener('message', messageHandler);
-        if (message.error) {
-          reject(new Error(message.error));
-        } else {
-          resolve(message.result);
-        }
-      }
-    };
-
-    worker.on('message', messageHandler);
-
-    // Send the data to the worker
-    worker.postMessage({
-      type: 'processMessage',
-      requestId,
-      data
-    });
-  });
-};
-
 export const sendMessage = async (req, res) => {
   try {
     const { text, image } = req.body;
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
 
-    // Validate input
-    if (!text && !image) {
-      return res.status(400).json({ error: "Message text or image is required" });
-    }
-
+ 
     let imageUrl;
     if (image) {
-      // Validate image before uploading
-      if (!image.startsWith('data:image/')) {
-        return res.status(400).json({ error: "Invalid image format" });
-      }
+      // Use worker thread for image processing to avoid blocking main thread
+      const workerPath = path.join(__dirname, "../workers/imageProcessor.js");
+      const worker = new Worker(workerPath);
+      
+      // Process image in worker thread
+      const imageProcessingPromise = new Promise((resolve, reject) => {
+        worker.postMessage({ image });
+        
+        worker.on("message", (result) => {
+          worker.terminate();
+          if (result.success) {
+            resolve(result.url);
+          } else {
+            reject(new Error(result.error));
+          }
+        });
+        
+        worker.on("error", (error) => {
+          worker.terminate();
+          reject(error);
+        });
+      });
+      
+      imageUrl = await imageProcessingPromise;
+    }
 
+    // Encrypt sensitive text data before saving
+    let encryptedData;
+    if (text) {
       try {
-        // Upload image in a separate thread if in main thread
-        if (isMainThread) {
-          const uploadResult = await processMessageInWorker({
-            action: 'uploadImage',
-            image
-          });
-          imageUrl = uploadResult.secure_url;
-        } else {
-          // Direct upload if already in a worker thread
-          const uploadResponse = await cloudinary.uploader.upload(image, {
-            resource_type: 'image',
-            folder: 'chat-app-secure',
-            access_mode: 'authenticated',
-            type: 'authenticated'
-          });
-          imageUrl = uploadResponse.secure_url;
-        }
+        encryptedData = encryptText(text);
       } catch (error) {
-        console.error("Error uploading image:", error);
-        return res.status(500).json({ error: "Failed to upload image" });
+        console.error("Encryption error:", error);
+        return res.status(500).json({ error: "Failed to secure message" });
       }
     }
 
-    // Encrypt the message text
-    const encryptedText = text ? encrypt(text) : null;
-
-    // Create a new message document
+    // create a new message document
     const newMessage = new Message({
       senderId,
       receiverId,
-      text: null, // Don't store plaintext
-      encryptedText, // Store encrypted text instead
+      text: text ? "[Encrypted]" : undefined, // Store placeholder
+      encryptedData: encryptedData,
       image: imageUrl,
     });
 
     await newMessage.save();
 
-    // Create a safe version to send to the client (with decrypted text)
-    const safeMessage = newMessage.toObject();
-    safeMessage.text = text;
-    delete safeMessage.encryptedText;
-
-    // If the recipient is online, send them the new message via Socket.IO
+    // if the recipient is online, send them the new message via Socket.IO
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", safeMessage);
+      // Send decrypted message to real-time socket
+      const socketMessage = {
+        ...newMessage.toObject(),
+        text: text, // Send original text for real-time display
+        encryptedData: undefined
+      };
+      io.to(receiverSocketId).emit("newMessage", socketMessage);
     }
 
-    res.status(201).json(safeMessage);
+    // Return decrypted message to sender
+    const responseMessage = {
+      ...newMessage.toObject(),
+      text: text,
+      encryptedData: undefined
+    };
+
+    res.status(201).json(responseMessage);
   } catch (error) {
     console.log("Error in sendMessage controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
-// Handle worker thread messages if this is a worker
-if (!isMainThread && workerData?.type === 'message-worker') {
-  console.log(`Message worker ${workerData.workerId} started`);
-
-  parentPort.on('message', async (message) => {
-    if (message.type === 'processMessage') {
-      try {
-        const { data, requestId } = message;
-        let result;
-
-        if (data.action === 'uploadImage') {
-          // Upload image to cloudinary
-          const uploadResponse = await cloudinary.uploader.upload(data.image, {
-            resource_type: 'image',
-            folder: 'chat-app-secure',
-            access_mode: 'authenticated',
-            type: 'authenticated'
-          });
-          result = uploadResponse;
-        }
-
-        // Send the result back to the main thread
-        parentPort.postMessage({
-          requestId,
-          result
-        });
-      } catch (error) {
-        // Send the error back to the main thread
-        parentPort.postMessage({
-          requestId: message.requestId,
-          error: error.message
-        });
-      }
-    }
-  });
-}

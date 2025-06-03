@@ -18,10 +18,28 @@ import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { app, server } from "./lib/socket.js";
 
+// Import security middleware
+import { 
+  securityHeaders, 
+  createRateLimit, 
+  xssProtection, 
+  validateInput, 
+  noSqlInjectionProtection,
+  loginRateLimit
+
+} from "./middleware/security.middleware.js";
+
 dotenv.config(); // loads environment var into Node.js
 
 const PORT = process.env.PORT;
 const __dirname = path.resolve(); // the path of the project folder
+
+// Apply security middleware
+app.use(securityHeaders); // Security headers
+app.use(createRateLimit()); // General rate limiting
+app.use(xssProtection); // XSS protection
+app.use(validateInput); // Input validation
+app.use(noSqlInjectionProtection); // NoSQL injection protection
 
 app.use(express.json({ limit: "10mb" })); // automatic JSON parsing in request bodies
 app.use(cookieParser()); // adds req.cookies 
@@ -34,6 +52,9 @@ app.use( // sets CORS in order for the backend to accept requests from the front
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/auth/signup", loginRateLimit);
+app.use("/api/auth/login", loginRateLimit);
+
 
 if (process.env.NODE_ENV === "production") { // checks production mode
   app.use(express.static(path.join(__dirname, "../frontend/dist"))); // serves the static files from  dist
