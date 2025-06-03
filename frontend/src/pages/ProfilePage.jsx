@@ -1,26 +1,23 @@
-// This file is the user profile screen for viewing account info and updating profile picture
-
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Camera, Mail, User } from "lucide-react";
 
 const ProfilePage = () => {
-  const { authUser, isUpdatingProfile, updateProfile } = useAuthStore(); // Auth state and update handler
-  const [selectedImg, setSelectedImg] = useState(null); // Holds new image preview
+  const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
+  const [selectedImg, setSelectedImg] = useState(null);
 
-  // Handle avatar upload
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
 
-    reader.readAsDataURL(file); // Convert image to base64
+    reader.readAsDataURL(file);
 
     reader.onload = async () => {
       const base64Image = reader.result;
-      setSelectedImg(base64Image); // Show preview immediately
-      await updateProfile({ profilePic: base64Image }); // Send update to server
+      setSelectedImg(base64Image);
+      await updateProfile({ profilePic: base64Image });
     };
   };
 
@@ -28,23 +25,20 @@ const ProfilePage = () => {
     <div className="h-screen pt-20">
       <div className="max-w-2xl mx-auto p-4 py-8">
         <div className="bg-base-300 rounded-xl p-6 space-y-8">
-
-          {/* Header section */}
           <div className="text-center">
             <h1 className="text-2xl font-semibold ">Profile</h1>
             <p className="mt-2">Your profile information</p>
           </div>
 
-          {/* Profile picture + upload */}
+          {/* avatar upload section */}
+
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
               <img
                 src={selectedImg || authUser.profilePic || "/avatar.png"}
                 alt="Profile"
-                className="size-32 rounded-full object-cover border-4"
+                className="size-32 rounded-full object-cover border-4 "
               />
-
-              {/* Upload button (camera icon) */}
               <label
                 htmlFor="avatar-upload"
                 className={`
@@ -66,39 +60,31 @@ const ProfilePage = () => {
                 />
               </label>
             </div>
-
             <p className="text-sm text-zinc-400">
               {isUpdatingProfile ? "Uploading..." : "Click the camera icon to update your photo"}
             </p>
           </div>
 
-          {/* Display full name */}
           <div className="space-y-6">
             <div className="space-y-1.5">
               <div className="text-sm text-zinc-400 flex items-center gap-2">
                 <User className="w-4 h-4" />
                 Full Name
               </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">
-                {authUser?.fullName}
-              </p>
+              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{authUser?.fullName}</p>
             </div>
 
-            {/* Display email */}
             <div className="space-y-1.5">
               <div className="text-sm text-zinc-400 flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 Email Address
               </div>
-              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">
-                {authUser?.email}
-              </p>
+              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{authUser?.email}</p>
             </div>
           </div>
 
-          {/* Additional account details */}
           <div className="mt-6 bg-base-300 rounded-xl p-6">
-            <h2 className="text-lg font-medium mb-4">Account Information</h2>
+            <h2 className="text-lg font-medium  mb-4">Account Information</h2>
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between py-2 border-b border-zinc-700">
                 <span>Member Since</span>
@@ -110,11 +96,9 @@ const ProfilePage = () => {
               </div>
             </div>
           </div>
-          
         </div>
       </div>
     </div>
   );
 };
-
 export default ProfilePage;

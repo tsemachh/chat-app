@@ -1,11 +1,9 @@
-// This file handels the top navigation bar with logo, Settings/Profile links, and Logout button for logged in user
-
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { LogOut, MessageSquare, Settings, User } from "lucide-react";
 
 const Navbar = () => {
-  const { logout, authUser } = useAuthStore(); // get current user and logout function
+  const { logout, authUser } = useAuthStore();
 
   return (
     <header

@@ -1,12 +1,7 @@
-// This file is a placeholder component that is shown when no conversation is selected
-//  displays welcome message and animated icon
-
 import { MessageSquare } from "lucide-react";
 
 const NoChatSelected = () => {
   return (
-    // full-size center-aligned container with padding and subtle background
-
     <div className="w-full flex flex-1 flex-col items-center justify-center p-16 bg-base-100/50">
       <div className="max-w-md text-center space-y-6">
         {/* Icon Display */}
