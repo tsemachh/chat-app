@@ -1,3 +1,6 @@
+// This file defines the user schema and exports the Mongoose mode
+    //  for managing users in MongoDB
+
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
@@ -14,14 +17,27 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      minlength: 6,
+      minlength: 8, // Enhanced security requirement
     },
     profilePic: {
       type: String,
       default: "",
     },
+    loginAttempts: {
+      type: Number,
+      default: 0
+    },
+    lockUntil: {
+      type: Date
+    },
+    lastLogin: {
+      type: Date
+    },
+    securityHash: {
+      type: String // Additional security field
+    },
   },
-  { timestamps: true }
+  { timestamps: true } // for createdAt and updatedAt
 );
 
 const User = mongoose.model("User", userSchema);
