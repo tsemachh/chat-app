@@ -2,8 +2,8 @@
 import { create } from "zustand";
 
 export const useThemeStore = create((set) => ({
-  // Initialize theme from localStorage or default to "coffee"
-  theme: localStorage.getItem("chat-theme") || "coffee",
+  // Initialize theme from localStorage or default to forest (daisyUI)
+  theme: localStorage.getItem("chat-theme") || "forest",
 
   // Update theme in both state and localStorage
   setTheme: (theme) => {
