@@ -14,8 +14,8 @@ import path from "path";
 
 import { connectDB } from "./lib/db.js";
 
-import authRoutes from "./routes/auth.route.js";
-import messageRoutes from "./routes/message.route.js";
+import authRoutes from "./routes/authRoute.js";
+import messageRoutes from "./routes/messageRoute.js";
 import { app, server } from "./lib/socket.js";
 
 // Import security middleware
@@ -25,7 +25,7 @@ import {
   xssProtection, 
   validateInput, 
   noSqlInjectionProtection 
-} from "./middleware/security.middleware.js";
+} from "./middleware/security.js";
 
 dotenv.config(); // loads environment var into Node.js
 

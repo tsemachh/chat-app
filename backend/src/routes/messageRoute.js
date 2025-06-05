@@ -5,9 +5,9 @@
 // - message.route.js sends new messages to a specific user
 
 import express from "express";
-import { protectRoute } from "../middleware/auth.middleware.js";
-import { getMessages, getUsersForSidebar, sendMessage } from "../controllers/message.controller.js";
-import { messageRateLimit } from "../middleware/security.middleware.js";
+import { protectRoute } from "../middleware/requireAuth.js";
+import { getMessages, getUsersForSidebar, sendMessage } from "../controllers/messageControl.js";
+import { messageRateLimit } from "../middleware/security.js";
 
 const router = express.Router();
 

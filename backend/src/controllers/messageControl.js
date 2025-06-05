@@ -1,7 +1,7 @@
 // this file specifies controller methods to retrieve chat users, get messages between users, and transmit new messages
 
-import User from "../models/user.model.js"
-import Message from "../models/message.model.js";
+import User from "../models/userModel.js"
+import Message from "../models/messageModel.js";
 
 import cloudinary from "../lib/cloudinary.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
