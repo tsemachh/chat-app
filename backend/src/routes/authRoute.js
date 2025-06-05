@@ -4,18 +4,18 @@
 // - auth.route.js allows users to update their profile picture and the background (only if they are authenticated)
 
 import express from "express";
-import { checkAuth, login, logout, signup, updateProfile } from "../controllers/authControl.js";
+import { userSession, SignIn, SignOut, signup, changeAvatar } from "../controllers/authControl.js";
 import { protectRoute } from "../middleware/requireAuth.js";
-import { loginRateLimit } from "../middleware/security.js";
+import { SignInRateLimit } from "../middleware/security.js";
 
 const router = express.Router();
 
-router.post("/signup", loginRateLimit, signup);
-router.post("/login", loginRateLimit, login);
-router.post("/logout", logout);
+router.post("/signup", SignInRateLimit, signup);
+router.post("/SignIn", SignInRateLimit, SignIn);
+router.post("/SignOut", SignOut);
 
-router.put("/update-profile", protectRoute, updateProfile);
+router.put("/update-profile", protectRoute, changeAvatar);
 
-router.get("/check", protectRoute, checkAuth);
+router.get("/check", protectRoute, userSession);
 
 export default router;

@@ -48,7 +48,7 @@ export const signup = async (req, res) => {
         _id: newUser._id,
         fullName: newUser.fullName,
         email: newUser.email,
-        profilePic: newUser.profilePic,
+        avatar: newUser.avatar,
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -60,7 +60,7 @@ export const signup = async (req, res) => {
 };
 
 // logs in a user and returns a JWT token (if credentials are ok)
-export const login = async (req, res) => {
+export const SignIn = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -72,20 +72,20 @@ export const login = async (req, res) => {
     // Check if account is locked
     if (user.lockUntil && user.lockUntil > Date.now()) {
       return res.status(423).json({ 
-        message: "Account temporarily locked due to too many failed login attempts" 
+        message: "Account temporarily locked due to too many failed SignIn attempts" 
       });
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-      // Increment login attempts
-      const updates = { $inc: { loginAttempts: 1 } };
+      // Increment SignIn attempts
+      const updates = { $inc: { SignInAttempts: 1 } };
       
       // Lock account after 5 failed attempts for 15 minutes
-      if (user.loginAttempts >= 4) {
+      if (user.SignInAttempts >= 4) {
         updates.$set = {
           lockUntil: Date.now() + 15 * 60 * 1000, // 15 minutes
-          loginAttempts: 0
+          SignInAttempts: 0
         };
       }
       
@@ -93,10 +93,10 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Reset login attempts and update last login on successful login
+    // Reset SignIn attempts and update last SignIn on successful SignIn
     await User.findByIdAndUpdate(user._id, {
-      $unset: { loginAttempts: 1, lockUntil: 1 },
-      $set: { lastLogin: new Date() }
+      $unset: { SignInAttempts: 1, lockUntil: 1 },
+      $set: { lastSignIn: new Date() }
     });
 
     generateToken(user._id, res);
@@ -105,39 +105,39 @@ export const login = async (req, res) => {
       _id: user._id,
       fullName: user.fullName,
       email: user.email,
-      profilePic: user.profilePic,
+      avatar: user.avatar,
     });
   } catch (error) {
-    console.log("Error in login controller", error.message);
+    console.log("Error in SignIn controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
 // logs out the user by clearing the JWT cookie
-export const logout = (req, res) => {
+export const SignOut = (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
-    console.log("Error in logout controller", error.message);
+    console.log("Error in SignOut controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
 // updates user's profile picture (with Cloudinary)
-export const updateProfile = async (req, res) => {
+export const changeAvatar = async (req, res) => {
   try {
-    const { profilePic } = req.body;
+    const { avatar } = req.body;
     const userId = req.user._id;
 
-    if (!profilePic) {
+    if (!avatar) {
       return res.status(400).json({ message: "Profile pic is required" });
     }
 
-    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    const uploadResponse = await cloudinary.uploader.upload(avatar);
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { profilePic: uploadResponse.secure_url },
+      { avatar: uploadResponse.secure_url },
       { new: true }
     );
 
@@ -149,11 +149,11 @@ export const updateProfile = async (req, res) => {
 };
 
 // returns the authenticated user's data (frontend)
-export const checkAuth = (req, res) => {
+export const userSession = (req, res) => {
   try {
     res.status(200).json(req.user);
   } catch (error) {
-    console.log("Error in checkAuth controller", error.message);
+    console.log("Error in userSession controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

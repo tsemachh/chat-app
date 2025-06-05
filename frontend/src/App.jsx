@@ -24,7 +24,7 @@ import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 
 const App = () => {
-  const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore(); // Auth store state
+  const { authUser, userSession, isCheckingAuth, onlineUsers } = useAuthStore(); // Auth store state
   const { theme } = useThemeStore(); // Theme store
 
   console.log({ onlineUsers });
@@ -32,8 +32,8 @@ const App = () => {
 
   // On app load, check if the user is already authenticated
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    userSession();
+  }, [userSession]);
 
   // Show a loading spinner while checking authentication
   if (isCheckingAuth && !authUser)

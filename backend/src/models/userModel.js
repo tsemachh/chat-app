@@ -19,18 +19,18 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 8, // Enhanced security requirement
     },
-    profilePic: {
+    avatar: {
       type: String,
       default: "",
     },
-    loginAttempts: {
+    SignInAttempts: {
       type: Number,
       default: 0
     },
     lockUntil: {
       type: Date
     },
-    lastLogin: {
+    lastSignIn: {
       type: Date
     },
     securityHash: {

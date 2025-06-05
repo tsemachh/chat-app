@@ -16,8 +16,8 @@ export const createRateLimit = (windowMs = 15 * 60 * 1000, max = 100) => {
   });
 };
 
-// Rate limit for login attempts
-export const loginRateLimit = createRateLimit(15 * 60 * 1000, 5); // 5 attempts per 15 minutes
+// Rate limit for SignIn attempts
+export const SignInRateLimit = createRateLimit(15 * 60 * 1000, 5); // 5 attempts per 15 minutes
 
 // Rate limit for message sending
 export const messageRateLimit = createRateLimit(60 * 1000, 30); // 30 messages per minute
