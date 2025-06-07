@@ -5,7 +5,7 @@ import cloudinary from "../lib/cloudinary.js";
 async function processImage(imageData) {
   try {
     // Process image upload in separate thread to avoid blocking main thread
-    const uploadResponse = await cloudinary.uploader.upload(imageData, {
+    const upRes = await cloudinary.uploader.upload(imageData, {
       folder: "chat_images",
       resource_type: "auto",
       quality: "auto:good",
@@ -14,8 +14,8 @@ async function processImage(imageData) {
     
     return {
       success: true,
-      url: uploadResponse.secure_url,
-      publicId: uploadResponse.public_id
+      url: upRes.secure_url,
+      publicId: upRes.public_id
     };
   } catch (error) {
     return {

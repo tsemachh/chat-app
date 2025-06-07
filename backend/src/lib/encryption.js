@@ -7,7 +7,7 @@ const SECRET_KEY = process.env.ENCRYPTION_SECRET
 const IV_LENGTH = 16;
 
 // Encrypt sensitive text data
-export const encryptText = (text) => {
+export const encText = (text) => {
   try {
     if (!text) throw new Error("No data to encrypt");
 
@@ -31,8 +31,8 @@ export const encryptText = (text) => {
   }
 };
 
-// Decrypt sensitive text data
-export const decryptText = (encryptedData) => {
+// decrypt sensitive text data
+export const decText = (encryptedData) => {
   try {
     if (!encryptedData || !encryptedData.encrypted || !encryptedData.iv || !encryptedData.tag) {
       throw new Error("Incomplete encrypted data");
@@ -58,6 +58,6 @@ export const hashData = (data) => {
   return crypto.createHash("sha256").update(data).digest("hex");
 };
 
-export const generateSecureToken = (length = 32) => {
+export const secureToken = (length = 32) => {
   return crypto.randomBytes(length).toString("hex");
 };

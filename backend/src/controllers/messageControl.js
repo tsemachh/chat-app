@@ -3,26 +3,25 @@
 import User from "../models/userModel.js"
 import Message from "../models/messageModel.js";
 
-import cloudinary from "../lib/cloudinary.js";
-import { getReceiverSocketId, io } from "../lib/socket.js";
+import { userSocketId, io } from "../lib/socket.js";
 import { Worker } from "worker_threads";
 import path from "path";
 import { fileURLToPath } from "url";
-import { encryptText, decryptText } from "../lib/encryption.js";
+import { encText, decText } from "../lib/encryption.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // returns a list of all users except the currently user
-export const getUsersForSidebar = async (req, res) => {
+export const UserSidebar = async (req, res) => {
   try {
-    const loggedInUserId = req.user._id;
+    const loggedId = req.user._id;
         // finds all the users except the currently one making the request 
-    const filteredUsers = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+    const filtere = await User.find({ _id: { $ne: loggedId } }).select("-password");
 
-    res.status(200).json(filteredUsers);
+    res.status(200).json(filtere);
   } catch (error) {
-    console.error("Error in getUsersForSidebar: ", error.message);
+    console.error("Error in UserSidebar: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -42,12 +41,12 @@ export const getMessages = async (req, res) => {
     });
 
     // Decrypt messages for client
-    const decryptedMessages = messages.map(message => {
+    const decrypted = messages.map(message => {
       try {
         if (message.text && message.encryptedData) {
           return {
             ...message.toObject(),
-            text: decryptText(message.encryptedData),
+            text: decText(message.encryptedData),
             encryptedData: undefined
           };
         }
@@ -61,7 +60,7 @@ export const getMessages = async (req, res) => {
       }
     });
 
-    res.status(200).json(decryptedMessages);
+    res.status(200).json(decrypted);
   } catch (error) {
     console.log("Error in getMessages controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });
@@ -81,7 +80,7 @@ export const sendMessage = async (req, res) => {
       const worker = new Worker(workerPath);
       
       // Process image in worker thread
-      const imageProcessingPromise = new Promise((resolve, reject) => {
+      const imageProce = new Promise((resolve, reject) => {
         worker.postMessage({ image });
         
         worker.on("message", (result) => {
@@ -99,14 +98,14 @@ export const sendMessage = async (req, res) => {
         });
       });
       
-      imageUrl = await imageProcessingPromise;
+      imageUrl = await imageProce;
     }
 
     // Encrypt sensitive text data before saving
     let encryptedData;
     if (text) {
       try {
-        encryptedData = encryptText(text);
+        encryptedData = encText(text);
       } catch (error) {
         console.error("Encryption error:", error);
         return res.status(500).json({ error: "Failed to secure message" });
@@ -125,7 +124,7 @@ export const sendMessage = async (req, res) => {
     await newMessage.save();
 
     // if the recipient is online, send them the new message via Socket.IO
-    const receiverSocketId = getReceiverSocketId(receiverId);
+    const receiverSocketId = userSocketId(receiverId);
     if (receiverSocketId) {
       // Send decrypted message to real-time socket
       const socketMessage = {

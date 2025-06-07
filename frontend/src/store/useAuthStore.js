@@ -14,14 +14,14 @@ export const useAuthStore = create((set, get) => ({
   onlineUsers: [],
   socket: null,
 
-  userSession: async () => {
+  checkAuth: async () => {
     try {
       const res = await axiosInstance.get("/auth/check");
 
       set({ authUser: res.data });
       get().connectSocket();
     } catch (error) {
-      console.log("Error in userSession:", error);
+      console.log("Error in checkAuth:", error);
       set({ authUser: null });
     } finally {
       set({ isCheckingAuth: false });
@@ -68,7 +68,7 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  changeAvatar: async (data) => {
+  updateProfile: async (data) => {
     set({ isUpdatingProfile: true });
     try {
       const res = await axiosInstance.put("/auth/update-profile", data);

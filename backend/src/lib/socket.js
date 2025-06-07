@@ -22,7 +22,7 @@ const io = new Server(server, {
 });
 
 // eported utility function to get a user's socket ID by user ID
-export function getReceiverSocketId(userId) {
+export function userSocketId(userId) {
   return userSocketMap[userId];
 }
 
@@ -39,8 +39,8 @@ io.on("connection", (socket) => {  // handle new client connections
     userSocketMap[userId] = socket.id;
     
     // Limit concurrent connections per user
-    const userConnections = Object.values(userSocketMap).filter(id => id === socket.id).length;
-    if (userConnections > 3) {
+    const userCon = Object.values(userSocketMap).filter(id => id === socket.id).length;
+    if (userCon > 3) {
       socket.emit("error", "Too many concurrent connections");
       socket.disconnect();
       return;
@@ -75,7 +75,6 @@ io.on("connection", (socket) => {  // handle new client connections
     io.emit("getOnlineUsers", Object.keys(userSocketMap)); // update the list of online users for all connected clients
   });
 
-  // Handle connection errors
   socket.on("error", (error) => {
     console.error("Socket error:", error);
   });

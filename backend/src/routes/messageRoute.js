@@ -6,12 +6,12 @@
 
 import express from "express";
 import { protectRoute } from "../middleware/requireAuth.js";
-import { getMessages, getUsersForSidebar, sendMessage } from "../controllers/messageControl.js";
+import { getMessages, UserSidebar, sendMessage } from "../controllers/messageControl.js";
 import { messageRateLimit } from "../middleware/security.js";
 
 const router = express.Router();
 
-router.get("/users", protectRoute, getUsersForSidebar);
+router.get("/users", protectRoute, UserSidebar);
 router.get("/:id", protectRoute, getMessages);
 
 router.post("/send/:id", protectRoute, messageRateLimit, sendMessage);

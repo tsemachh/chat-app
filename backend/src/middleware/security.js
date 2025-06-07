@@ -4,7 +4,7 @@ import helmet from "helmet";
 import xss from "xss";
 
 // Rate limiting to prevent brute force attacks
-export const createRateLimit = (windowMs = 15 * 60 * 1000, max = 100) => {
+export const createRateLimiter  = (windowMs = 15 * 60 * 1000, max = 100) => {
   return rateLimit({
     windowMs,
     max,
@@ -16,11 +16,11 @@ export const createRateLimit = (windowMs = 15 * 60 * 1000, max = 100) => {
   });
 };
 
-// Rate limit for SignIn attempts
-export const SignInRateLimit = createRateLimit(15 * 60 * 1000, 5); // 5 attempts per 15 minutes
+// Rate limit for login attempts
+export const loginRateLimit = rateLimit(15 * 60 * 1000, 5); // 5 attempts per 15 minutes
 
 // Rate limit for message sending
-export const messageRateLimit = createRateLimit(60 * 1000, 30); // 30 messages per minute
+export const messageRateLimit = rateLimit(60 * 1000, 30); // 30 messages per minute
 
 // XSS protection middleware
 export const xssProtection = (req, res, next) => {
@@ -79,7 +79,7 @@ export const validateInput = (req, res, next) => {
 };
 
 // Security headers middleware
-export const securityHeaders = helmet({
+export const secHeaders = helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
@@ -97,15 +97,15 @@ export const securityHeaders = helmet({
 });
 
 // SQL injection protection (for NoSQL injection in this case)
-export const noSqlInjectionProtection = (req, res, next) => {
-  const checkForInjection = (obj) => {
+export const sqlProtect = (req, res, next) => {
+  const injectCheck = (obj) => {
     if (typeof obj === "object" && obj !== null) {
       for (const key in obj) {
         if (key.startsWith("$") || key.includes(".")) {
           return true;
         }
         if (typeof obj[key] === "object") {
-          if (checkForInjection(obj[key])) {
+          if (injectCheck(obj[key])) {
             return true;
           }
         }
@@ -114,7 +114,7 @@ export const noSqlInjectionProtection = (req, res, next) => {
     return false;
   };
   
-  if (checkForInjection(req.body) || checkForInjection(req.query) || checkForInjection(req.params)) {
+  if (injectCheck(req.body) || injectCheck(req.query) || injectCheck(req.params)) {
     return res.status(400).json({ error: "Invalid request format" });
   }
   

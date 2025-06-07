@@ -4,7 +4,6 @@ import { generateToken } from "../lib/helpers.js"; // set it in the cookie
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs"; // hashing and verifying passwords
 import cloudinary from "../lib/cloudinary.js";
-import { hashData, generateSecureToken } from "../lib/encryption.js";
 
 // registers new users and stores them in the database
 export const signup = async (req, res) => {
@@ -19,8 +18,8 @@ export const signup = async (req, res) => {
     }
 
     // Enhanced password validation
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
-    if (!passwordRegex.test(password)) {
+    const required = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
+    if (!required.test(password)) {
       return res.status(400).json({ 
         message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character" 
       });
@@ -48,7 +47,7 @@ export const signup = async (req, res) => {
         _id: newUser._id,
         fullName: newUser.fullName,
         email: newUser.email,
-        avatar: newUser.avatar,
+        profilePic: newUser.profilePic,
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -60,10 +59,10 @@ export const signup = async (req, res) => {
 };
 
 // logs in a user and returns a JWT token (if credentials are ok)
-export const SignIn = async (req, res) => {
+export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }); // check if user exist
 
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
@@ -72,20 +71,20 @@ export const SignIn = async (req, res) => {
     // Check if account is locked
     if (user.lockUntil && user.lockUntil > Date.now()) {
       return res.status(423).json({ 
-        message: "Account temporarily locked due to too many failed SignIn attempts" 
+        message: "Account temporarily locked due to too many failed login attempts" 
       });
     }
 
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
-    if (!isPasswordCorrect) {
-      // Increment SignIn attempts
-      const updates = { $inc: { SignInAttempts: 1 } };
+    const isCorrect = await bcrypt.compare(password, user.password);
+    if (!isCorrect) {
+      // increment login attempts
+      const updates = { $inc: { loginAttempts: 1 } };
       
       // Lock account after 5 failed attempts for 15 minutes
-      if (user.SignInAttempts >= 4) {
+      if (user.loginAttempts >= 4) {
         updates.$set = {
           lockUntil: Date.now() + 15 * 60 * 1000, // 15 minutes
-          SignInAttempts: 0
+          loginAttempts: 0
         };
       }
       
@@ -93,10 +92,10 @@ export const SignIn = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Reset SignIn attempts and update last SignIn on successful SignIn
+    // Reset login attempts and update last login on successful login
     await User.findByIdAndUpdate(user._id, {
-      $unset: { SignInAttempts: 1, lockUntil: 1 },
-      $set: { lastSignIn: new Date() }
+      $unset: { loginAttempts: 1, lockUntil: 1 },
+      $set: { lastLogin: new Date() }
     });
 
     generateToken(user._id, res);
@@ -105,39 +104,39 @@ export const SignIn = async (req, res) => {
       _id: user._id,
       fullName: user.fullName,
       email: user.email,
-      avatar: user.avatar,
+      profilePic: user.profilePic,
     });
   } catch (error) {
-    console.log("Error in SignIn controller", error.message);
+    console.log("Error in login controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
 // logs out the user by clearing the JWT cookie
-export const SignOut = (req, res) => {
+export const logout = (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
-    console.log("Error in SignOut controller", error.message);
+    console.log("Error in logout controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
 // updates user's profile picture (with Cloudinary)
-export const changeAvatar = async (req, res) => {
+export const updateProfile = async (req, res) => {
   try {
-    const { avatar } = req.body;
+    const { profilePic } = req.body;
     const userId = req.user._id;
 
-    if (!avatar) {
+    if (!profilePic) {
       return res.status(400).json({ message: "Profile pic is required" });
     }
 
-    const uploadResponse = await cloudinary.uploader.upload(avatar);
+    const upRes = await cloudinary.uploader.upload(profilePic);
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { avatar: uploadResponse.secure_url },
+      { profilePic: upRes.secure_url },
       { new: true }
     );
 
@@ -149,11 +148,11 @@ export const changeAvatar = async (req, res) => {
 };
 
 // returns the authenticated user's data (frontend)
-export const userSession = (req, res) => {
+export const checkAuth = (req, res) => {
   try {
     res.status(200).json(req.user);
   } catch (error) {
-    console.log("Error in userSession controller", error.message);
+    console.log("Error in checkAuth controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

@@ -10,7 +10,7 @@ if (cluster.isPrimary) {
   console.log(`Primary process ${process.pid} is running`);
   console.log(`Forking ${numCPUs} worker processes...`);
 
-  // Fork workers for each CPU core
+  // fork workers for  CPU core
   for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
   }

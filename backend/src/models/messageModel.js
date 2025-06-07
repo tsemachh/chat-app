@@ -28,7 +28,7 @@ const messageSchema = new mongoose.Schema(
       type: String, 
     },
   },
-  { timestamps: true } // allows automatic createdAt and updatedAt fields
+  { timestamps: true } // createdAt and updatedAt fields
 );
 
 const Message = mongoose.model("Message", messageSchema); // export the created model
