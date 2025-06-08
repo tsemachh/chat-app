@@ -2,7 +2,7 @@ import { X } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 
-const ChatHeader = () => {
+const ChatBar = () => {
   const { selectedUser, setSelectedUser } = useChatStore();
   const { onlineUsers } = useAuthStore();
 
@@ -34,4 +34,4 @@ const ChatHeader = () => {
     </div>
   );
 };
-export default ChatHeader; // exp
+export default ChatBar; // exp

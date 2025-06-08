@@ -5,9 +5,9 @@
 // - App.jsx checks user authentication on load and renders the appropriate routes
 // - App.jsx shows a loading spinner while verifying the session
 // - App.jsx applies the selected theme using data-theme for DaisyUI styling
-// - App.jsx includes a global Navbar and Toaster for layout and notifications
+// - App.jsx includes a global Topbar and Toaster for layout and notifications
 
-import Navbar from "./components/Navbar";
+import Topbar from "./components/Topbar";
 
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
@@ -47,7 +47,7 @@ const App = () => {
     // Apply selected DaisyUI theme to the entire app
     <div data-theme={theme}>
       {/* Top navigation bar */}
-      <Navbar />
+      <Topbar />
 
       {/* Define application routes */}
       <Routes>

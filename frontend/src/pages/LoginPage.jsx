@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import AuthImagePattern from "../components/AuthImagePattern";
+import SidePattern from "../components/SidePattern";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
 
@@ -109,7 +109,7 @@ const LoginPage = () => {
       </div>
 
       {/* Right Side - Image/Pattern */}
-      <AuthImagePattern
+      <SidePattern
         title={"Welcome to Chatty!"}
         subtitle={"Sign in to continue your conversations and catch up with your messages."}
       />

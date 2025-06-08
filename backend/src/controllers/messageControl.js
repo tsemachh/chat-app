@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // returns a list of all users except the currently user
-export const UserSidebar = async (req, res) => {
+export const UserUserList = async (req, res) => {
   try {
     const loggedId = req.user._id;
         // finds all the users except the currently one making the request 
@@ -21,7 +21,7 @@ export const UserSidebar = async (req, res) => {
 
     res.status(200).json(filtere);
   } catch (error) {
-    console.error("Error in UserSidebar: ", error.message);
+    console.error("Error in UserUserList: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };
