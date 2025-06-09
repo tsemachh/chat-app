@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema(
     tempLock: {
       type: Date
     },
-    lastLogin: {
+    lastsignIn: {
       type: Date
     },
     securityHash: {

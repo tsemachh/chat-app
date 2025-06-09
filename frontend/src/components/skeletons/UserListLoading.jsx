@@ -1,6 +1,6 @@
 import { Users } from "lucide-react";
 
-const skelUser = () => {
+const UserLoading = () => {
   // Create 5 skeleton items
   const skeletonContacts = Array(5).fill(null);
 
@@ -38,4 +38,4 @@ const skelUser = () => {
   );
 };
 
-export default skelUser;
+export default UserLoading;

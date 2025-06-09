@@ -1,17 +1,11 @@
 // This file is the entry point of the frontend React application
 
-// - App.jsx sets up routing with React Router DOM
-// - App.jsx uses Zustand stores to track authentication state and theme
-// - App.jsx checks user authentication on load and renders the appropriate routes
-// - App.jsx shows a loading spinner while verifying the session
-// - App.jsx applies the selected theme using data-theme for DaisyUI styling
-// - App.jsx includes a global Topbar and Toaster for layout and notifications
 
 import Topbar from "./components/Topbar";
 
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
-import LoginPage from "./pages/LoginPage";
+import SignInPage from "./pages/SignInPage";
 import SettingsPage from "./pages/SettingsPage";
 import ProfilePage from "./pages/ProfilePage";
 
@@ -52,19 +46,19 @@ const App = () => {
       {/* Define application routes */}
       <Routes>
         {/* Private route: home/chat */}
-        <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/login" />} />
+        <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/signIn" />} />
 
         {/* Public route: sign up */}
         <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
 
-        {/* Public route: login */}
-        <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
+        {/* Public route: signIn */}
+        <Route path="/signIn" element={!authUser ? <SignInPage /> : <Navigate to="/" />} />
 
         {/* Settings page – accessible always */}
         <Route path="/settings" element={<SettingsPage />} />
 
         {/* Private route: profile */}
-        <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
+        <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/signIn" />} />
       </Routes>
 
       {/* Global toast notification system */}

@@ -55,7 +55,7 @@ export const signup = async (req, res) => {
 };
 
 // logs in and returns a JWT token 
-export const login = async (req, res) => {
+export const signIn = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user  = await User.findOne({ email }); // check if user exist
@@ -73,7 +73,7 @@ export const login = async (req, res) => {
 
     const isCorrect = await bcrypt.compare(password, user.password);
     if (!isCorrect) {
-      // inc login attempts
+      // inc signIn attempts
       const updates = { $inc: { attempts: 1 } };
       
       // Lock account for 10 minutes
@@ -91,7 +91,7 @@ export const login = async (req, res) => {
     // Mongoose method used to find a document by its _id
     await User.findByIdAndUpdate(user._id, {
       $unset: { attempts: 1, tempLock: 1 },
-      $set: { lastLogin: new Date() }
+      $set: { lastsignIn: new Date() }
     });
 
     generateToken(user._id, res);
@@ -103,7 +103,7 @@ export const login = async (req, res) => {
       profilePic: user.profilePic,
     });
   } catch (error) {
-    console.log("Error in login controller", error.message);
+    console.log("Error in signIn controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

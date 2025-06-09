@@ -14,12 +14,12 @@ export const rateLimiter   = (windowMs = 10 * 60 * 1000, max = 100) => {
   });
 };
 
-// Rate limit for login attempts
+// Rate limit for signIn attempts
 export const logLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 5,
   message: {
-    error: "Too many login attempts. Try again in 10 minutes.",
+    error: "Too many signIn attempts. Try again in 10 minutes.",
   },
 });
 
