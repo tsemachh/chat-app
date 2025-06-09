@@ -22,7 +22,7 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  getMessages: async (userId) => {
+  history: async (userId) => {
     set({ isMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/messages/${userId}`);
@@ -49,19 +49,19 @@ export const useChatStore = create((set, get) => ({
 
     const socket = useAuthStore.getState().socket;
 
-    socket.on("newMessage", (newMessage) => {
-      const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
+    socket.on("newMsg", (newMsg) => {
+      const isMessageSentFromSelectedUser = newMsg.senderId === selectedUser._id;
       if (!isMessageSentFromSelectedUser) return;
 
       set({
-        messages: [...get().messages, newMessage],
+        messages: [...get().messages, newMsg],
       });
     });
   },
 
   unsubscribeFromMessages: () => {
     const socket = useAuthStore.getState().socket;
-    socket.off("newMessage");
+    socket.off("newMsg");
   },
 
   setSelectedUser: (selectedUser) => set({ selectedUser }),

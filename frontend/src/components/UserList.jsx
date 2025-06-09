@@ -14,7 +14,7 @@ const UserList = () => {
     getUsers();
   }, [getUsers]);
 
-  const filteredUsers = showOnlineOnly
+  const filterdUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))
     : users;
 
@@ -43,7 +43,7 @@ const UserList = () => {
       </div>
 
       <div className="overflow-y-auto w-full py-3">
-        {filteredUsers.map((user) => (
+        {filterdUsers.map((user) => (
           <button
             key={user._id}
             onClick={() => setSelectedUser(user)}
@@ -77,7 +77,7 @@ const UserList = () => {
           </button>
         ))}
 
-        {filteredUsers.length === 0 && (
+        {filterdUsers.length === 0 && (
           <div className="text-center text-zinc-500 py-4">There are currently no users online</div>
         )}
       </div>

@@ -60,7 +60,7 @@ io.on("connection", (socket) => {  // handle new client connections
     messageCount = 0;
   }, 60000); // Reset every minute
 
-  socket.on("newMessage", () => {
+  socket.on("newMsg", () => {
     messageCount++;
     if (messageCount > 30) { // Max 30 messages per minute
       socket.emit("error", "Rate limit exceeded");

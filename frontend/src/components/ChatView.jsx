@@ -10,7 +10,7 @@ import { formatMessageTime } from "../lib/utils";
 const ChatView = () => {
   const {
     messages,
-    getMessages,
+    history,
     isMessagesLoading,
     selectedUser,
     subscribeToMessages,
@@ -20,12 +20,12 @@ const ChatView = () => {
   const messageEndRef = useRef(null);
 
   useEffect(() => {
-    getMessages(selectedUser._id);
+    history(selectedUser._id);
 
     subscribeToMessages();
 
     return () => unsubscribeFromMessages();
-  }, [selectedUser._id, getMessages, subscribeToMessages, unsubscribeFromMessages]);
+  }, [selectedUser._id, history, subscribeToMessages, unsubscribeFromMessages]);
 
   useEffect(() => {
     if (messageEndRef.current && messages) {

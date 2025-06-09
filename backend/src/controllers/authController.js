@@ -25,9 +25,9 @@ export const signup = async (req, res) => {
       });
     }
 
-    const isTaken = await User.findOne({ email });
+    const user  = await User.findOne({ email });
 
-    if (isTaken) return res.status(400).json({ message: "Looks like there's already an account with this email" });
+    if (user) return res.status(400).json({ message: "Looks like there's already an account with this email" });
 
     const salt = await bcrypt.genSalt(10);
     const hashed = await bcrypt.hash(password, salt);
@@ -54,13 +54,13 @@ export const signup = async (req, res) => {
   }
 };
 
-// logs in a user and returns a JWT token (if credentials are ok)
+// logs in and returns a JWT token 
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const isTaken = await User.findOne({ email }); // check if user exist
+    const user  = await User.findOne({ email }); // check if user exist
 
-    if (!isTaken) {
+    if (!user ) {
       return res.status(400).json({ message: "Hmm... that email doesn’t seem to be registered" });
     }
 

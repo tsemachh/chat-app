@@ -19,7 +19,7 @@ const messageSchema = new mongoose.Schema(
     text: {
       type: String,
     },
-    encryptedData: { // store encrypted message data
+    encData: { // store encrypted message data
       encrypted: String,
       iv: String,
       tag: String

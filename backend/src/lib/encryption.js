@@ -32,13 +32,13 @@ export const encText = (text) => {
 };
 
 // decrypt sensitive text data
-export const decText = (encryptedData) => {
+export const decText = (encData) => {
   try {
-    if (!encryptedData || !encryptedData.encrypted || !encryptedData.iv || !encryptedData.tag) {
+    if (!encData || !encData.encrypted || !encData.iv || !encData.tag) {
       throw new Error("Incomplete encrypted data");
     }
 
-    const { encrypted, iv, tag } = encryptedData;
+    const { encrypted, iv, tag } = encData;
 
     const decipher = crypto.createDecipheriv(ALGORITHM, SECRET_KEY, Buffer.from(iv, "hex"));
     decipher.setAAD(Buffer.from("chat-app"));
