@@ -6,12 +6,12 @@
 import express from "express";
 import { checkAuth, login, logout, signup, updateProfile } from "../controllers/authController.js";
 import { protectRoute } from "../middleware/requireAuth.js";
-import { loginRateLimit } from "../middleware/security.js";
+import { logLimiter } from "../middleware/security.js";
 
 const router = express.Router();
 
-router.post("/signup", loginRateLimit, signup);
-router.post("/login", loginRateLimit, login);
+router.post("/signup", logLimiter, signup);
+router.post("/login", logLimiter, login);
 router.post("/logout", logout);
 
 router.put("/update-profile", protectRoute, updateProfile);

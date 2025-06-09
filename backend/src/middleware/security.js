@@ -3,13 +3,11 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import xss from "xss";
 
-// Rate limiting to prevent brute force attacks
-export const createRateLimiter  = (windowMs = 15 * 60 * 1000, max = 100) => {
-  return rateLimit({
-    windowMs,
-    max,
+// Rate limiting to prevent brute force 
+export const rateLimiter   = (windowMs = 10 * 60 * 1000, max = 100) => {
+  return rateLimit({windowMs, max,
     message: {
-      error: "Too many requests from this IP, please try again later."
+      error: "You've been temporarily locked out due to too many requests. Please try again later"
     },
     standardHeaders: true,
     legacyHeaders: false,
@@ -17,15 +15,27 @@ export const createRateLimiter  = (windowMs = 15 * 60 * 1000, max = 100) => {
 };
 
 // Rate limit for login attempts
-export const loginRateLimit = rateLimit(15 * 60 * 1000, 5); // 5 attempts per 15 minutes
+export const logLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+  message: {
+    error: "Too many login attempts. Try again in 10 minutes.",
+  },
+});
 
-// Rate limit for message sending
-export const messageRateLimit = rateLimit(60 * 1000, 30); // 30 messages per minute
+// Rate limit for message sending (30)
+export const msgLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  message: {
+    error: "You're sending messages too fast. Slow down a bit!",
+  },
+});
 
 // XSS protection middleware
 export const xssProtection = (req, res, next) => {
   if (req.body) {
-    // Clean text content from XSS
+    // Clean content from XSS
     if (req.body.text) {
       req.body.text = xss(req.body.text, {
         whiteList: {}, // No HTML tags allowed
@@ -59,14 +69,14 @@ export const validateInput = (req, res, next) => {
     /(\$\(|jQuery)/gi
   ];
   
-  const checkString = (str) => {
+  const checkStr = (str) => {
     return suspiciousPatterns.some(pattern => pattern.test(str));
   };
   
   // Check request body for malicious content
   if (req.body) {
     for (const [key, value] of Object.entries(req.body)) {
-      if (typeof value === "string" && checkString(value)) {
+      if (typeof value === "string" && checkStr(value)) {
         return res.status(400).json({ 
           error: "Invalid input detected",
           field: key 

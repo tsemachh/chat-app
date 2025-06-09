@@ -19,7 +19,7 @@ import messageRoutes from "./routes/messageRoute.js";
 import { app, server } from "./lib/socket.js";
 
 // Import security middleware
-import { secHeaders, createRateLimiter, xssProtection, validateInput, sqlProtect } from "./middleware/security.js";
+import { secHeaders, rateLimiter , xssProtection, validateInput, sqlProtect } from "./middleware/security.js";
 
 dotenv.config(); // loads environment var into Node.js
 
@@ -28,7 +28,7 @@ const __dirname = path.resolve(); // the path of the project folder
 
 // Apply security middleware
 app.use(secHeaders); // Security headers
-app.use(createRateLimiter()); // General rate limiting
+app.use(rateLimiter ()); // General rate limiting
 app.use(xssProtection); // XSS protection
 app.use(validateInput); // Input validation
 app.use(sqlProtect); // NoSQL injection protection
