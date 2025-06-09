@@ -6,10 +6,7 @@ import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
 
 const SignInView = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: ""});
   const { signIn, isLoggingIn } = authState();
 
   const handleSubmit = async (e) => {
@@ -19,7 +16,7 @@ const SignInView = () => {
 
   return (
     <div className="h-screen grid lg:grid-cols-2">
-      {/* Left Side - Form */}
+      {/* Form */}
       <div className="flex flex-col justify-center items-center p-6 sm:p-12">
         <div className="w-full max-w-md space-y-8">
           {/* Logo */}
@@ -108,7 +105,7 @@ const SignInView = () => {
         </div>
       </div>
 
-      {/* Right Side - Image/Pattern */}
+      {/* Pattern */}
       <SidePattern
         title={"Welcome to Chatty!"}
         subtitle={"Sign in to continue your conversations and catch up with your messages."}
