@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { useAuthStore } from "../store/useAuthStore";
+import { authState } from "../state/authState";
 import { MessageSquare, Settings, User, LogOut } from "lucide-react";
 
 const Topbar = () => {
-  const { signOut, authUser } = useAuthStore();
+  const { signOut, authUser } = authState();
 
   return (
     <header

@@ -1,10 +1,10 @@
-import { useChatStore } from "../store/useChatStore";
+import { chatState } from "../state/chatState";
 import { useEffect, useRef } from "react";
 
 import ChatHeader from "./ChatBar";
 import MessageInput from "./ChatInput";
 import ChatLoading from "./skeletons/ChatLoading";
-import { useAuthStore } from "../store/useAuthStore";
+import { authState } from "../state/authState";
 import { formatMessageTime } from "../lib/utils";
 
 const ChatView = () => {
@@ -15,8 +15,8 @@ const ChatView = () => {
     selectedUser,
     syncMsgs,
     offMessages,
-  } = useChatStore();
-  const { authUser } = useAuthStore();
+  } = chatState();
+  const { authUser } = authState();
   const msgEndRef = useRef(null);
 
   useEffect(() => {

@@ -10,16 +10,16 @@ import SettingsPage from "./pages/SettingsPage";
 import ProfilePage from "./pages/ProfilePage";
 
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuthStore } from "./store/useAuthStore";
-import { useThemeStore } from "./store/useThemeStore";
+import { authState } from "./state/authState";
+import { themeState } from "./state/themeState";
 import { useEffect } from "react";
 
 import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 
 const App = () => {
-  const { authUser, checkAuth, isCheckingAuth, onlineUsers } = useAuthStore(); // Auth store state
-  const { theme } = useThemeStore(); // Theme store
+  const { authUser, checkAuth, isCheckingAuth, onlineUsers } = authState(); // Auth store state
+  const { theme } = themeState(); // Theme store
 
   console.log({ onlineUsers });
   console.log({ authUser });

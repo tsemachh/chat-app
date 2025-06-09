@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { useChatStore } from "../store/useChatStore";
-import { useAuthStore } from "../store/useAuthStore";
+import { chatState } from "../state/chatState";
+import { authState } from "../state/authState";
 import UserListLoading from "./skeletons/UserListLoading";
 import { Users } from "lucide-react";
 
 const UserList = () => {
-  const { getAccounts, users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
+  const { getAccounts, users, selectedUser, setSelectedUser, isUsersLoading } = chatState();
 
-  const { onlineUsers } = useAuthStore();
+  const { onlineUsers } = authState();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
   useEffect(() => {

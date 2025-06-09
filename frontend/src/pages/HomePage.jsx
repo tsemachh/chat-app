@@ -1,11 +1,11 @@
-import { useChatStore } from "../store/useChatStore";
+import { chatState } from "../state/chatState";
 
 import UserList from "../components/UserPanel";
 import EmptyChat from "../components/EmptyChat";
 import ChatContainer from "../components/ChatView";
 
 const HomePage = () => {
-  const { selectedUser } = useChatStore();
+  const { selectedUser } = chatState();
 
   return (
     <div className="h-screen bg-base-200">

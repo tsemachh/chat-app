@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuthStore } from "../store/useAuthStore";
+import { authState } from "../state/authState";
 import SidePattern from "../components/SidePattern";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
@@ -10,7 +10,7 @@ const signInPage = () => {
     email: "",
     password: "",
   });
-  const { signIn, isLoggingIn } = useAuthStore();
+  const { signIn, isLoggingIn } = authState();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
