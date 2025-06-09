@@ -11,29 +11,29 @@ const ChatView = () => {
   const {
     messages,
     history,
-    isMessagesLoading,
+    msgsLoading,
     selectedUser,
-    subscribeToMessages,
-    unsubscribeFromMessages,
+    syncMsgs,
+    offMessages,
   } = useChatStore();
   const { authUser } = useAuthStore();
-  const messageEndRef = useRef(null);
+  const msgEndRef = useRef(null);
 
   useEffect(() => {
     history(selectedUser._id);
 
-    subscribeToMessages();
+    syncMsgs();
 
-    return () => unsubscribeFromMessages();
-  }, [selectedUser._id, history, subscribeToMessages, unsubscribeFromMessages]);
+    return () => offMessages();
+  }, [selectedUser._id, history, syncMsgs, offMessages]);
 
   useEffect(() => {
-    if (messageEndRef.current && messages) {
-      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (msgEndRef.current && messages) {
+      msgEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
-  if (isMessagesLoading) {
+  if (msgsLoading) {
     return (
       <div className="flex-1 flex flex-col overflow-auto">
         <ChatHeader />
@@ -52,7 +52,7 @@ const ChatView = () => {
           <div
             key={message._id}
             className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
-            ref={messageEndRef}
+            ref={msgEndRef}
           >
             <div className=" chat-image avatar">
               <div className="size-10 rounded-full border">

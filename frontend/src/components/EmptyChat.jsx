@@ -19,7 +19,7 @@ const EmptyChat = () => {
         {/* Welcome Text */}
         <h2 className="text-2xl font-bold">Welcome to Chatty!</h2>
         <p className="text-base-content/60">
-          Select a conversation from the UserList to start chatting
+          Select a friend to start chatting
         </p>
       </div>
     </div>
