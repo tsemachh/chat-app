@@ -1,6 +1,6 @@
 import { useChatStore } from "../store/useChatStore";
 
-import UserList from "../components/UserList";
+import UserList from "../components/UserPanel";
 import EmptyChat from "../components/EmptyChat";
 import ChatContainer from "../components/ChatView";
 

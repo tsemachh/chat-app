@@ -1,6 +1,6 @@
 // This file exports controller functions that handle user authentication and profile
 
-import { generateToken } from "../lib/helpers.js"; // set it in the cookie
+import { generateToken } from "../lib/tools.js"; // set it in the cookie
 import User from "../models/accountModel.js";
 import bcrypt from "bcryptjs"; // hashing and verifying passwords
 import cloudinary from "../lib/cloudinary.js";

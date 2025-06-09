@@ -5,14 +5,14 @@ import UserListLoading from "./skeletons/UserListLoading";
 import { Users } from "lucide-react";
 
 const UserList = () => {
-  const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
+  const { getAccounts, users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
 
   const { onlineUsers } = useAuthStore();
   const [showOnlineOnly, setShowOnlineOnly] = useState(false);
 
   useEffect(() => {
-    getUsers();
-  }, [getUsers]);
+    getAccounts();
+  }, [getAccounts]);
 
   const filterdUsers = showOnlineOnly
     ? users.filter((user) => onlineUsers.includes(user._id))

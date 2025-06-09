@@ -4,7 +4,7 @@
 
 import express from "express";
 import { protectRoute } from "../secureAccess/verifyUser.js";
-import { history, UserList, sendMessage } from "../Handlers/msgHandler.js";
+import { history, UserList, sendMsg } from "../Handlers/msgHandler.js";
 import { msgLimiter } from "../secureAccess/security.js";
 
 const router = express.Router();
@@ -12,6 +12,6 @@ const router = express.Router();
 router.get("/users", protectRoute, UserList);
 router.get("/:id", protectRoute, history);
 
-router.post("/send/:id", protectRoute, msgLimiter, sendMessage);
+router.post("/send/:id", protectRoute, msgLimiter, sendMsg);
 
 export default router;

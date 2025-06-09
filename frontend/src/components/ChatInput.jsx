@@ -7,7 +7,7 @@ const ChatInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, imgPreview] = useState(null);
   const fileInputRef = useRef(null);
-  const { sendMessage } = useChatStore();
+  const { sendMsg } = useChatStore();
 
   const imgChange = (e) => {
     const file = e.target.files[0];
@@ -33,7 +33,7 @@ const ChatInput = () => {
     if (!text.trim() && !imagePreview) return;
 
     try {
-      await sendMessage({
+      await sendMsg({
         text: text.trim(),
         image: imagePreview,
       });

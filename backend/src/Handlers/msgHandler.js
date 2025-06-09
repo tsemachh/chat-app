@@ -3,7 +3,7 @@
 import User from "../models/accountModel.js"
 import Message from "../models/msgModel.js";
 
-import { userSocketId, io } from "../lib/socket.js";
+import { userSocketId, io } from "../lib/realtime.js";
 import { Worker } from "worker_threads";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -67,7 +67,7 @@ export const history = async (req, res) => {
   }
 };
 
-export const sendMessage = async (req, res) => {
+export const sendMsg = async (req, res) => {
   try {
     const { text, image } = req.body;
     const { id: receiverId } = req.params;
@@ -144,7 +144,7 @@ export const sendMessage = async (req, res) => {
 
     res.status(201).json(responseMsg);
   } catch (error) {
-    console.log("Error in sendMessage controller: ", error.message);
+    console.log("Error in sendMsg controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });
   }
 };

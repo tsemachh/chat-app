@@ -10,7 +10,7 @@ import { connectDB } from "./lib/db.js";
 
 import accessRoutes from "./routes/accessRoute.js";
 import messageRoutes from "./routes/msgRoute.js";
-import { app, server } from "./lib/socket.js";
+import { app, server } from "./lib/realtime.js";
 
 // security middleware
 import { secHeaders, rateLimiter , xssProtection, validateInput, sqlProtect } from "./secureAccess/security.js";
