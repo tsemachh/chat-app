@@ -1,8 +1,6 @@
-// This file exports the routes related to the messaging  in the backend API using Express
+// exports the routes related to the messaging 
 
-// - message.route.js creats a list of users for the UserList
-// - message.route.js fetchs all messages exchanged with user
-// - message.route.js sends new messages to a specific user
+
 
 import express from "express";
 import { protectRoute } from "../middleware/requireAuth.js";

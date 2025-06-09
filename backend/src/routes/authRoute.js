@@ -1,7 +1,4 @@
-// This file exports the paths relevant to the auth process that are in the backend API using Express.
-
-// - auth.route.js creates endpoints for signing up, logging in, and logging out 
-// - auth.route.js allows users to update their profile picture and the background (only if they are authenticated)
+// exports the paths relevant to the auth process
 
 import express from "express";
 import { checkAuth, login, logout, signup, updateProfile } from "../controllers/authController.js";

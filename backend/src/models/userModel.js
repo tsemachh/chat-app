@@ -1,5 +1,4 @@
-// This file defines the user schema and exports the Mongoose mode
-    //  for managing users in MongoDB
+// user schema for Mongoose 
 
 import mongoose from "mongoose";
 

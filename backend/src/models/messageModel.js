@@ -1,6 +1,5 @@
-// This file defines the Mongoose schema and model for messages in the db
+// Mongoose schema and model for messages in the db
 
-// Mongoose schema defines the structure of documents within a MongoDB
 
 import mongoose from "mongoose";
 
@@ -31,6 +30,6 @@ const messageSchema = new mongoose.Schema(
   { timestamps: true } // createdAt and updatedAt fields
 );
 
-const Message = mongoose.model("Message", messageSchema); // export the created model
+const Message = mongoose.model("Message", messageSchema); 
 
 export default Message;
