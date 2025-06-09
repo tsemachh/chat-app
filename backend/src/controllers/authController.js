@@ -10,36 +10,32 @@ export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
   try {
     if (!fullName || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ message: "Oops! Don’t forget to complete all the fields" });
     }
 
     if (password.length < 8) {
-      return res.status(400).json({ message: "Password must be at least 8 characters" });
+      return res.status(400).json({ message: "Oops! Make sure your password has 8 or more character" });
     }
 
-    // Enhanced password validation
-    const required = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
-    if (!required.test(password)) {
+    // password validation
+    const validation = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
+    if (!validation.test(password)) {
       return res.status(400).json({ 
         message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character" 
       });
     }
 
-    const user = await User.findOne({ email });
+    const isTaken = await User.findOne({ email });
 
-    if (user) return res.status(400).json({ message: "Email already exists" });
+    if (isTaken) return res.status(400).json({ message: "Looks like there's already an account with this email" });
 
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashed = await bcrypt.hash(password, salt);
 
-    const newUser = new User({
-      fullName,
-      email,
-      password: hashedPassword,
-    });
+    const newUser = new User({ fullName, email, password: hashed });
 
     if (newUser) {
-      // generate jwt token here
+      // generate jwt 
       generateToken(newUser._id, res);
       await newUser.save();
 
@@ -62,29 +58,29 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email }); // check if user exist
+    const isTaken = await User.findOne({ email }); // check if user exist
 
-    if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+    if (!isTaken) {
+      return res.status(400).json({ message: "Hmm... that email doesn’t seem to be registered" });
     }
 
     // Check if account is locked
-    if (user.lockUntil && user.lockUntil > Date.now()) {
+    if (user.tempLock && user.tempLock > Date.now()) {
       return res.status(423).json({ 
-        message: "Account temporarily locked due to too many failed login attempts" 
+        message: "Oops! You've tried to log in too many times. Please wait a bit and try again" 
       });
     }
 
     const isCorrect = await bcrypt.compare(password, user.password);
     if (!isCorrect) {
-      // increment login attempts
-      const updates = { $inc: { loginAttempts: 1 } };
+      // inc login attempts
+      const updates = { $inc: { attempts: 1 } };
       
-      // Lock account after 5 failed attempts for 15 minutes
-      if (user.loginAttempts >= 4) {
+      // Lock account for 10 minutes
+      if (user.attempts >= 4) {
         updates.$set = {
-          lockUntil: Date.now() + 15 * 60 * 1000, // 15 minutes
-          loginAttempts: 0
+          tempLock: Date.now() + 10 * 60 * 1000, // 10 minutes
+          attempts: 0
         };
       }
       
@@ -92,9 +88,9 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Reset login attempts and update last login on successful login
+    // Mongoose method used to find a document by its _id
     await User.findByIdAndUpdate(user._id, {
-      $unset: { loginAttempts: 1, lockUntil: 1 },
+      $unset: { attempts: 1, tempLock: 1 },
       $set: { lastLogin: new Date() }
     });
 
@@ -116,7 +112,7 @@ export const login = async (req, res) => {
 export const logout = (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
-    res.status(200).json({ message: "Logged out successfully" });
+    res.status(200).json({ message: "See you next time!" });
   } catch (error) {
     console.log("Error in logout controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });

@@ -6,7 +6,7 @@
 
 import express from "express";
 import { protectRoute } from "../middleware/requireAuth.js";
-import { getMessages, UserUserList, sendMessage } from "../controllers/messageControl.js";
+import { getMessages, UserUserList, sendMessage } from "../controllers/messageController.js";
 import { messageRateLimit } from "../middleware/security.js";
 
 const router = express.Router();

@@ -23,11 +23,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    loginAttempts: {
+    attempts: {
       type: Number,
       default: 0
     },
-    lockUntil: {
+    tempLock: {
       type: Date
     },
     lastLogin: {

@@ -4,7 +4,7 @@
 // - auth.route.js allows users to update their profile picture and the background (only if they are authenticated)
 
 import express from "express";
-import { checkAuth, login, logout, signup, updateProfile } from "../controllers/authControl.js";
+import { checkAuth, login, logout, signup, updateProfile } from "../controllers/authController.js";
 import { protectRoute } from "../middleware/requireAuth.js";
 import { loginRateLimit } from "../middleware/security.js";
 
