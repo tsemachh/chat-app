@@ -43,7 +43,7 @@ export const signup = async (req, res) => {
         _id: newUser._id,
         fullName: newUser.fullName,
         email: newUser.email,
-        profilePic: newUser.profilePic,
+        avatar: newUser.avatar,
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -100,7 +100,7 @@ export const signIn = async (req, res) => {
       _id: user._id,
       fullName: user.fullName,
       email: user.email,
-      profilePic: user.profilePic,
+      avatar: user.avatar,
     });
   } catch (error) {
     console.log("Error in signIn controller", error.message);
@@ -109,12 +109,12 @@ export const signIn = async (req, res) => {
 };
 
 // logs out the user by clearing the JWT cookie
-export const logout = (req, res) => {
+export const signOut = (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
     res.status(200).json({ message: "See you next time!" });
   } catch (error) {
-    console.log("Error in logout controller", error.message);
+    console.log("Error in signOut controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -122,17 +122,17 @@ export const logout = (req, res) => {
 // updates user's profile picture (with Cloudinary)
 export const updateProfile = async (req, res) => {
   try {
-    const { profilePic } = req.body;
+    const { avatar } = req.body;
     const userId = req.user._id;
 
-    if (!profilePic) {
+    if (!avatar) {
       return res.status(400).json({ message: "Profile pic is required" });
     }
 
-    const uploadRes = await cloudinary.uploader.upload(profilePic);
+    const uploadRes = await cloudinary.uploader.upload(avatar);
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { profilePic: uploadRes.secure_url },
+      { avatar: uploadRes.secure_url },
       { new: true }
     );
 

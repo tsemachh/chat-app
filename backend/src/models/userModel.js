@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 8, // security requirement
     },
-    profilePic: {
+    avatar: {
       type: String,
       default: "",
     },

@@ -1,4 +1,3 @@
-// This file formats a timestamp into a 24-hour
 //  "HH:MM" string to be displayed in chat messages
 
 export function formatMessageTime(date) {

@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import { LogOut, MessageSquare, Settings, User } from "lucide-react";
+import { MessageSquare, Settings, User, LogOut } from "lucide-react";
 
 const Topbar = () => {
-  const { logout, authUser } = useAuthStore();
+  const { signOut, authUser } = useAuthStore();
 
   return (
     <header
@@ -40,9 +40,9 @@ const Topbar = () => {
                   <span className="hidden sm:inline">Profile</span>
                 </Link>
 
-                <button className="flex gap-2 items-center" onClick={logout}>
+                <button className="flex gap-2 items-center" onClick={signOut}>
                   <LogOut className="size-5" />
-                  <span className="hidden sm:inline">Logout</span>
+                  <span className="hidden sm:inline">Sign Out</span>
                 </button>
               </>
             )}
