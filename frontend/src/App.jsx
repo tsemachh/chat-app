@@ -3,11 +3,11 @@
 
 import Topbar from "./components/Topbar";
 
-import HomePage from "./pages/HomePage";
-import SignUpPage from "./pages/SignUpPage";
-import SignInPage from "./pages/SignInPage";
-import SettingsPage from "./pages/SettingsPage";
-import ProfilePage from "./pages/ProfilePage";
+import HomeView from "./views/HomeView";
+import SignUpView from "./views/SignUpView";
+import SignInView from "./views/SignInView";
+import SettingsView from "./views/SettingsView";
+import ProfileView from "./views/ProfileView";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { authState } from "./state/authState";
@@ -46,19 +46,19 @@ const App = () => {
       {/* Define application routes */}
       <Routes>
         {/* Private route: home/chat */}
-        <Route path="/" element={authUser ? <HomePage /> : <Navigate to="/signIn" />} />
+        <Route path="/" element={authUser ? <HomeView /> : <Navigate to="/signIn" />} />
 
         {/* Public route: sign up */}
-        <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
+        <Route path="/signup" element={!authUser ? <SignUpView /> : <Navigate to="/" />} />
 
         {/* Public route: signIn */}
-        <Route path="/signIn" element={!authUser ? <SignInPage /> : <Navigate to="/" />} />
+        <Route path="/signIn" element={!authUser ? <SignInView /> : <Navigate to="/" />} />
 
         {/* Settings page – accessible always */}
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/settings" element={<SettingsView />} />
 
         {/* Private route: profile */}
-        <Route path="/profile" element={authUser ? <ProfilePage /> : <Navigate to="/signIn" />} />
+        <Route path="/profile" element={authUser ? <ProfileView /> : <Navigate to="/signIn" />} />
       </Routes>
 
       {/* Global toast notification system */}

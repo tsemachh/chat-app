@@ -4,7 +4,7 @@ import UserList from "../components/UserPanel";
 import EmptyChat from "../components/EmptyChat";
 import ChatContainer from "../components/ChatView";
 
-const HomePage = () => {
+const HomeView = () => {
   const { selectedUser } = chatState();
 
   return (
@@ -21,4 +21,4 @@ const HomePage = () => {
     </div>
   );
 };
-export default HomePage;
+export default HomeView;

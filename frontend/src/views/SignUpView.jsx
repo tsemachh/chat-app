@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import SidePattern from "../components/SidePattern";
 import toast from "react-hot-toast";
 
-const SignUpPage = () => {
+const SignUpView = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -151,4 +151,4 @@ const SignUpPage = () => {
     </div>
   );
 };
-export default SignUpPage;
+export default SignUpView;

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { authState } from "../state/authState";
 import { Camera, Mail, User } from "lucide-react";
 
-const ProfilePage = () => {
+const ProfileView = () => {
   const { authUser, isUpdatingProfile, updateProfile } = authState();
   const [selectedImg, setSelectedImg] = useState(null);
 
@@ -101,4 +101,4 @@ const ProfilePage = () => {
     </div>
   );
 };
-export default ProfilePage;
+export default ProfileView;
