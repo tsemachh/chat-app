@@ -1,15 +1,15 @@
 // This file exports controller functions that handle user authentication and profile
 
 import { generateToken } from "../lib/tools.js"; // set it in the cookie
-import User from "../models/accountModel.js";
+import User from "../schema/userSchema.js";
 import bcrypt from "bcryptjs"; // hashing and verifying passwords
 import cloudinary from "../lib/cloudinary.js";
 
 // Handles user account creation, including validation, hashing, and token issuance
 export const signup = async (req, res) => {
-  const { userName, email, password } = req.body;
+  const { fullName, email, password } = req.body;
   try {
-    if (!userName || !email || !password) {
+    if (!fullName || !email || !password) {
       return res.status(400).json({ message: "Oops! Don’t forget to complete all the fields" });
     }
 
@@ -32,7 +32,7 @@ export const signup = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashed = await bcrypt.hash(password, salt);
 
-    const newUser = new User({ userName, email, password: hashed });
+    const newUser = new User({ fullName, email, password: hashed });
 
     if (newUser) {
       // generate jwt 
@@ -41,7 +41,7 @@ export const signup = async (req, res) => {
 
       res.status(201).json({
         _id: newUser._id,
-        userName: newUser.userName,
+        fullName: newUser.fullName,
         email: newUser.email,
         avatar: newUser.avatar,
       });
@@ -98,7 +98,7 @@ export const signIn = async (req, res) => {
 
     res.status(200).json({
       _id: user._id,
-      userName: user.userName,
+      fullName: user.fullName,
       email: user.email,
       avatar: user.avatar,
     });

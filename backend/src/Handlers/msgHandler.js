@@ -1,7 +1,7 @@
 // this file specifies controller methods to retrieve chat users, get messages between users, and transmit new messages
 
-import User from "../models/accountModel.js"
-import Message from "../models/msgModel.js";
+import User from "../schema/userSchema.js"
+import Message from "../schema/msgSchema.js";
 
 import { userSocketId, io } from "../lib/realtime.js";
 import { Worker } from "worker_threads";
@@ -17,7 +17,7 @@ export const UserList = async (req, res) => {
   try {
     const loggedId = req.user._id;
         // all the users except the currently
-    const filter = await User.find({ _id: { $ne: loggedId } }).select("-password");
+    const filter = await User.find({ _id: { $ne: loggedId } }).select("userName avatar _id email");
 
     res.status(200).json(filter);
   } catch (error) {
