@@ -1,7 +1,7 @@
 // this file specifies controller methods to retrieve chat users, get messages between users, and transmit new messages
 
 import User from "../models/userModel.js"
-import Message from "../models/messageModel.js";
+import Message from "../models/msgModel.js";
 
 import { userSocketId, io } from "../lib/socket.js";
 import { Worker } from "worker_threads";
@@ -76,7 +76,7 @@ export const sendMessage = async (req, res) => {
     let imageUrl;
     if (image) {
       // worker thread for image processing to avoid blocking main thread
-      const workerPath = path.join(__dirname, "../workers/imageProcessor.js");
+      const workerPath = path.join(__dirname, "../workers/imgHandler.js");
       const worker = new Worker(workerPath);
       
       // Process image in worker thread

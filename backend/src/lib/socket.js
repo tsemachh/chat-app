@@ -1,4 +1,4 @@
-// Sets up Socket.IO to handle real-time chat, track who's online, and send updates
+//  handle real-time chat, track who's online, and send updates
 
 import { Server } from "socket.io";
 import http from "http";
@@ -7,8 +7,7 @@ import express from "express";
 const app = express(); 
 const server = http.createServer(app); // create an HTTP server using Express
 
-// Create a Socket.IO server and link it to the HTTP server
-// Allow connections from the frontend at localhost:5173 (CORS)
+
 
 const io = new Server(server, {
   cors: {

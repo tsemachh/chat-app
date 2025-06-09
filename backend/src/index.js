@@ -9,11 +9,11 @@ import path from "path";
 import { connectDB } from "./lib/db.js";
 
 import authRoutes from "./routes/authRoute.js";
-import messageRoutes from "./routes/messageRoute.js";
+import messageRoutes from "./routes/msgRoute.js";
 import { app, server } from "./lib/socket.js";
 
 // security middleware
-import { secHeaders, rateLimiter , xssProtection, validateInput, sqlProtect } from "./middleware/security.js";
+import { secHeaders, rateLimiter , xssProtection, validateInput, sqlProtect } from "./secureAccess/security.js";
 
 dotenv.config(); // loads environment vars
 

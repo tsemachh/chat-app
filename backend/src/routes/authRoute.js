@@ -1,9 +1,9 @@
 // exports the paths relevant to the auth process
 
 import express from "express";
-import { checkAuth, signIn, signOut, signup, updateProfile } from "../controllers/authController.js";
-import { protectRoute } from "../middleware/requireAuth.js";
-import { logLimiter } from "../middleware/security.js";
+import { checkAuth, signIn, signOut, signup, updateProfile } from "../Handlers/authHandler .js";
+import { protectRoute } from "../secureAccess/verifyUser.js";
+import { logLimiter } from "../secureAccess/security.js";
 
 const router = express.Router();
 

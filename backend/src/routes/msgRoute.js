@@ -3,9 +3,9 @@
 
 
 import express from "express";
-import { protectRoute } from "../middleware/requireAuth.js";
-import { history, UserList, sendMessage } from "../controllers/messageController.js";
-import { msgLimiter } from "../middleware/security.js";
+import { protectRoute } from "../secureAccess/verifyUser.js";
+import { history, UserList, sendMessage } from "../Handlers/msgHandler.js";
+import { msgLimiter } from "../secureAccess/security.js";
 
 const router = express.Router();
 
