@@ -8,8 +8,8 @@ import path from "path";
 
 import { connectDB } from "./lib/db.js";
 
-import accessRoutes from "./routes/accessRoute.js";
-import messageRoutes from "./routes/msgRoute.js";
+import accsessEndpoint from "./endpoints/accessEndpoint.js";
+import msgEndpoint from "./endpoints/msgEndpoint.js";
 import { app, server } from "./lib/realtime.js";
 
 // security middleware
@@ -31,8 +31,8 @@ app.use(cookieParser()); // adds req.cookies
 app.use( // sets CORS in order for the backend to accept requests from the frontend 
   cors({ origin: "http://localhost:5173", credentials: true }));
 
-app.use("/api/auth", accessRoutes);
-app.use("/api/messages", messageRoutes);
+app.use("/api/auth", accsessEndpoint);
+app.use("/api/messages", msgEndpoint);
 
 if (process.env.NODE_ENV === "production") { // checks production mode
   app.use(express.static(path.join(__dirname, "../frontend/dist"))); // serves the static files from  dist

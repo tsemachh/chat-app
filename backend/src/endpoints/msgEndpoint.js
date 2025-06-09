@@ -7,11 +7,11 @@ import { protectRoute } from "../secureAccess/verifyUser.js";
 import { history, UserList, sendMsg } from "../Handlers/msgHandler.js";
 import { msgLimiter } from "../secureAccess/security.js";
 
-const accRouter = express.Router();
+const msgEndpoint = express.Router();
 
-accRouter.get("/users", protectRoute, UserList);
-accRouter.get("/:id", protectRoute, history);
+msgEndpoint.get("/users", protectRoute, UserList);
+msgEndpoint.get("/:id", protectRoute, history);
 
-accRouter.post("/send/:id", protectRoute, msgLimiter, sendMsg);
+msgEndpoint.post("/send/:id", protectRoute, msgLimiter, sendMsg);
 
-export default accRouter;
+export default msgEndpoint;
