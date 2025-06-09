@@ -1,15 +1,9 @@
-// This file is the entry point of the backend server
+// entry point of the backend server
 
-// - index.js connects to MongoDB (the database) 
-// - index.js initialize app with json (store and exchange data) && cookie middleware (reads cookies)
-// - index.js registers routs for auth && messaging && the API of a user
-// - index.js use soket.io in order to have real time communication 
-// - index.js starts the server on port 5001
-
-import express from "express"; // type of Node.js web framework
+import express from "express"; 
 import dotenv from "dotenv";
-import cookieParser from "cookie-parser"; //reads and parses the cookies into a JS object
-import cors from "cors"; // allows the server to receive different sources
+import cookieParser from "cookie-parser"; 
+import cors from "cors"; 
 import path from "path";
 
 import { connectDB } from "./lib/db.js";
@@ -18,29 +12,24 @@ import authRoutes from "./routes/authRoute.js";
 import messageRoutes from "./routes/messageRoute.js";
 import { app, server } from "./lib/socket.js";
 
-// Import security middleware
+// security middleware
 import { secHeaders, rateLimiter , xssProtection, validateInput, sqlProtect } from "./middleware/security.js";
 
-dotenv.config(); // loads environment var into Node.js
+dotenv.config(); // loads environment vars
 
 const PORT = process.env.PORT;
 const __dirname = path.resolve(); // the path of the project folder
 
-// Apply security middleware
-app.use(secHeaders); // Security headers
-app.use(rateLimiter ()); // General rate limiting
-app.use(xssProtection); // XSS protection
-app.use(validateInput); // Input validation
-app.use(sqlProtect); // NoSQL injection protection
+app.use(secHeaders); 
+app.use(rateLimiter ()); 
+app.use(xssProtection); 
+app.use(validateInput); 
+app.use(sqlProtect); 
 
-app.use(express.json({ limit: "10mb" })); // automatic JSON parsing in request bodies
+app.use(express.json({ limit: "10mb" })); 
 app.use(cookieParser()); // adds req.cookies 
 app.use( // sets CORS in order for the backend to accept requests from the frontend 
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  })
-);
+  cors({ origin: "http://localhost:5173", credentials: true }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);

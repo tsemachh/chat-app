@@ -1,4 +1,4 @@
-// Cluster implementation for multi-threading (requirement 3)
+// Cluster implementation for multi threading
 import cluster from "cluster";
 import os from "os";
 import { fileURLToPath } from "url";
@@ -15,14 +15,14 @@ if (cluster.isPrimary) {
     cluster.fork();
   }
 
-  // Handle worker exit and restart
+  // worker exit and restart
   cluster.on("exit", (worker, code, signal) => {
     console.log(`Worker ${worker.process.pid} died with code ${code} and signal ${signal}`);
     console.log("Starting a new worker...");
     cluster.fork();
   });
 
-  // Handle worker online
+  // worker online
   cluster.on("online", (worker) => {
     console.log(`Worker ${worker.process.pid} is online`);
   });
