@@ -6,7 +6,7 @@ const SECRET_KEY = process.env.ENCRYPTION_SECRET
   : crypto.randomBytes(32);
 const IV_LENGTH = 16;
 
-// Encrypt sensitive text data
+// Encrypt text data
 export const encText = (text) => {
   try {
     if (!text) throw new Error("No data to encrypt");
@@ -31,7 +31,7 @@ export const encText = (text) => {
   }
 };
 
-// decrypt sensitive text data
+// decrypt text data
 export const decText = (encData) => {
   try {
     if (!encData || !encData.encrypted || !encData.iv || !encData.tag) {
