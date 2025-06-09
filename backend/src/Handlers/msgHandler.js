@@ -35,8 +35,8 @@ export const history = async (req, res) => {
     // get all messages where sender is me or the other person
     const messages = await Message.find({
       $or: [
-        { senderId: myId, receiverId: userToChatId },
-        { senderId: userToChatId, receiverId: myId },
+        { fromUserId: myId, toUserId: userToChatId },
+        { fromUserId: userToChatId, toUserId: myId },
       ],
     });
 
@@ -70,8 +70,8 @@ export const history = async (req, res) => {
 export const sendMsg = async (req, res) => {
   try {
     const { text, image } = req.body;
-    const { id: receiverId } = req.params;
-    const senderId = req.user._id;
+    const { id: toUserId } = req.params;
+    const fromUserId = req.user._id;
 
     let imageUrl;
     if (image) {
@@ -114,8 +114,8 @@ export const sendMsg = async (req, res) => {
 
     // create a new message document
     const newMsg = new Message({
-      senderId,
-      receiverId,
+      fromUserId,
+      toUserId,
       text: text ? "[Encrypted]" : undefined, // Store placeholder
       encData: encData,
       image: imageUrl,
@@ -124,7 +124,7 @@ export const sendMsg = async (req, res) => {
     await newMsg.save();
 
     // if the recipient is online, send them the new message via Socket.IO
-    const recvSockId = userSocketId(receiverId);
+    const recvSockId = userSocketId(toUserId);
     if (recvSockId) {
       // Send decrypted message to real-time socket
       const socketMessage = {

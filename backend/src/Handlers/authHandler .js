@@ -5,7 +5,7 @@ import User from "../models/accountModel.js";
 import bcrypt from "bcryptjs"; // hashing and verifying passwords
 import cloudinary from "../lib/cloudinary.js";
 
-// registers new users and stores them in the database
+// Handles user account creation, including validation, hashing, and token issuance
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
   try {
@@ -17,7 +17,7 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: "Oops! Make sure your password has 8 or more character" });
     }
 
-    // password validation
+    // Validate strong passwords
     const validation = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
     if (!validation.test(password)) {
       return res.status(400).json({ 

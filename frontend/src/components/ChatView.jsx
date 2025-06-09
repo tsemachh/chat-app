@@ -51,14 +51,14 @@ const ChatView = () => {
         {messages.map((message) => (
           <div
             key={message._id}
-            className={`chat ${message.senderId === authUser._id ? "chat-end" : "chat-start"}`}
+            className={`chat ${message.fromUserId === authUser._id ? "chat-end" : "chat-start"}`}
             ref={msgEndRef}
           >
             <div className=" chat-image avatar">
               <div className="size-10 rounded-full border">
                 <img
                   src={
-                    message.senderId === authUser._id
+                    message.fromUserId === authUser._id
                       ? authUser.avatar || "/avatar.png"
                       : selectedUser.avatar || "/avatar.png"
                   }

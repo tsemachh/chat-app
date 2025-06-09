@@ -5,14 +5,14 @@ import { checkAuth, signIn, signOut, signup, updateProfile } from "../Handlers/a
 import { protectRoute } from "../secureAccess/verifyUser.js";
 import { logLimiter } from "../secureAccess/security.js";
 
-const router = express.Router();
+const accRouter = express.Router();
 
-router.post("/signup", logLimiter, signup);
-router.post("/signIn", logLimiter, signIn);
-router.post("/signOut", signOut);
+accRouter.post("/signup", logLimiter, signup);
+accRouter.post("/signIn", logLimiter, signIn);
+accRouter.post("/signOut", signOut);
 
-router.put("/update-profile", protectRoute, updateProfile);
+accRouter.put("/update-profile", protectRoute, updateProfile);
 
-router.get("/check", protectRoute, checkAuth);
+accRouter.get("/check", protectRoute, checkAuth);
 
-export default router;
+export default accRouter;

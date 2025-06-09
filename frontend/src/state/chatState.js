@@ -50,7 +50,7 @@ export const chatState = create((set, get) => ({
     const socket = authState.getState().socket;
 
     socket.on("newMsg", (newMsg) => {
-      const isFromUser = newMsg.senderId === selectedUser._id;
+      const isFromUser = newMsg.fromUserId === selectedUser._id;
       if (!isFromUser) return;
 
       set({
