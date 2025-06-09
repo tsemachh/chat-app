@@ -8,7 +8,7 @@ import path from "path";
 
 import { connectDB } from "./lib/db.js";
 
-import authRoutes from "./routes/authRoute.js";
+import accessRoutes from "./routes/accessRoute.js";
 import messageRoutes from "./routes/msgRoute.js";
 import { app, server } from "./lib/socket.js";
 
@@ -31,7 +31,7 @@ app.use(cookieParser()); // adds req.cookies
 app.use( // sets CORS in order for the backend to accept requests from the frontend 
   cors({ origin: "http://localhost:5173", credentials: true }));
 
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", accessRoutes);
 app.use("/api/messages", messageRoutes);
 
 if (process.env.NODE_ENV === "production") { // checks production mode
