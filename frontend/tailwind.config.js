@@ -1,8 +1,5 @@
-// This file is a configuration for TailwindCSS and DaisyUI theme support
+// DaisyUI theme 
 
-// - tailwind.config.js enables Tailwind to scan HTML and JS/TS/JSX/TSX files for class usage
-// - tailwind.config.js integrates DaisyUI plugin to use component-based styling and pre-built themes
-// - tailwind.config.js lists all DaisyUI themes explicitly for use in theme switching (via data-theme)
 
 import daisyui from "daisyui";
 

@@ -1,9 +1,4 @@
-// This file renders the React app to the DOM
-
-// - main.jsx imports global styles from index.css (includes Tailwind setup)
-// - main.jsx wraps the App component with React.StrictMode for highlighting potential issues
-// - main.jsx uses BrowserRouter to enable client-side routing
-// - main.jsx mounts the React app to the root div in index.html using createRoot (React 18+)
+// renders the React app to the DOM
 
 
 import { StrictMode } from "react";
