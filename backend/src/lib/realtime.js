@@ -24,18 +24,19 @@ export function userSocketId(userId) {
   return socketMap[userId];
 }
 
-// in order to know which users are online
+// track online users
 const socketMap = {}; // {userId: socketId}
+const active_users = new Set(); // another way to track users
 
 io.on("connection", (socket) => {  // handle new client connections
   console.log("user connected", socket.id);
 
   const userId = socket.handshake.query.userId;
-  
+
   // Validate userId before storing
   if (userId && typeof userId === "string" && userId.match(/^[0-9a-fA-F]{24}$/)) {
     socketMap[userId] = socket.id;
-    
+
     // Limit concurrent connections per user
     const userCon = Object.values(socketMap).filter(id => id === socket.id).length;
     if (userCon > 3) {

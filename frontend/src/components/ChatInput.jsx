@@ -9,6 +9,9 @@ const ChatInput = () => {
   const fileInputRef = useRef(null);
   const { sendMsg } = chatState();
 
+  // for future implementation
+  const [isUploading, setIsUploading] = useState(false);
+
   const imgChange = (e) => {
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) {
@@ -87,10 +90,11 @@ const ChatInput = () => {
           />
 
           <button
-            type="button"
-            className={`hidden sm:flex btn btn-circle
-                     ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
-            onClick={() => fileInputRef.current?.click()}
+          type="button"
+          className={`hidden sm:flex btn btn-circle ${imagePreview ? 
+            "text-emerald-500" : 
+            "text-zinc-400"}`}
+          onClick={() => fileInputRef.current?.click()}
           >
             <Image size={20} />
           </button>
