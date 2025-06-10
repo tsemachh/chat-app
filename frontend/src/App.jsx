@@ -1,5 +1,5 @@
-// This file is the entry point of the frontend React application
-
+// Main app component
+// TODO: refactor this file
 
 import Topbar from "./components/Topbar";
 
@@ -21,8 +21,10 @@ const App = () => {
   const { authUser, checkAuth, isCheckingAuth, onlineUsers } = authState(); // Auth store state
   const { theme } = themeState(); // Theme store
 
+  // FIXME: remove before production
   console.log({ onlineUsers });
   console.log({ authUser });
+  console.log('App rendered at:', new Date().toISOString());
 
   // On app load, check if the user is already authenticated
   useEffect(() => {
