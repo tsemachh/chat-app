@@ -32,7 +32,7 @@ export const msgLimiter = rateLimit({
   },
 });
 
-// XSS protection middleware
+// XSS protection 
 export const xssProtection = (req, res, next) => {
   if (req.body) {
     // Clean content from XSS
