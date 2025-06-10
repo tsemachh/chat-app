@@ -1,9 +1,6 @@
-// Security middleware to protect against common vulnerabilities
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import xss from "xss";
-
-// Rate limiting to prevent brute force 
 export const rateLimiter   = (windowMs = 10 * 60 * 1000, max = 100) => {
   return rateLimit({windowMs, max,
     message: {
@@ -32,19 +29,15 @@ export const msgLimiter = rateLimit({
   },
 });
 
-// XSS protection 
 export const xssProtection = (req, res, next) => {
   if (req.body) {
-    // Clean content from XSS
     if (req.body.text) {
       req.body.text = xss(req.body.text, {
-        whiteList: {}, // No HTML tags allowed
+        whiteList: {},
         stripIgnoreTag: true,
         stripIgnoreTagBody: ["script"]
       });
     }
-    
-    // Clean other string fields
     Object.keys(req.body).forEach(key => {
       if (typeof req.body[key] === "string" && key !== "image") {
         req.body[key] = xss(req.body[key], {
@@ -58,9 +51,7 @@ export const xssProtection = (req, res, next) => {
   next();
 };
 
-// Input validation middleware
 export const validateInput = (req, res, next) => {
-  // Check for suspicious patterns
   const suspiciousPatterns = [
     /(<script.*?>.*?<\/script>)/gi,
     /(javascript:)/gi,
@@ -68,12 +59,10 @@ export const validateInput = (req, res, next) => {
     /(eval\(|setTimeout\(|setInterval\()/gi,
     /(\$\(|jQuery)/gi
   ];
-  
+
   const checkStr = (str) => {
     return suspiciousPatterns.some(pattern => pattern.test(str));
   };
-  
-  // Check request body for malicious content
   if (req.body) {
     for (const [key, value] of Object.entries(req.body)) {
       if (typeof value === "string" && checkStr(value)) {
@@ -84,11 +73,10 @@ export const validateInput = (req, res, next) => {
       }
     }
   }
-  
+
   next();
 };
 
-// Security headers middleware
 export const secHeaders = helmet({
   contentSecurityPolicy: {
     directives: {
@@ -106,7 +94,6 @@ export const secHeaders = helmet({
   crossOriginEmbedderPolicy: false
 });
 
-// SQL injection protection (for NoSQL injection in this case)
 export const sqlProtect = (req, res, next) => {
   const injectCheck = (obj) => {
     if (typeof obj === "object" && obj !== null) {
@@ -123,10 +110,10 @@ export const sqlProtect = (req, res, next) => {
     }
     return false;
   };
-  
+
   if (injectCheck(req.body) || injectCheck(req.query) || injectCheck(req.params)) {
     return res.status(400).json({ error: "Invalid request format" });
   }
-  
+
   next();
 };
