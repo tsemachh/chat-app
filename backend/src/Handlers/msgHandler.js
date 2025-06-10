@@ -15,7 +15,7 @@ export const UserList = async (req, res) => {
   try {
     const currentUserId = req.user._id;
         // all the users except the currently
-    const users = await User.find({ _id: { $ne: currentUserId } }).select("userName avatar _id email");
+    const users = await User.find({ _id: { $ne: currentUserId } }).select("fullName avatar _id email");
 
     res.status(200).json(users);
   } catch (err) {
