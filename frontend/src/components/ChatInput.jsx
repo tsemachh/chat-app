@@ -12,7 +12,7 @@ const ChatInput = () => {
   // for future implementation
   const [isUploading, setIsUploading] = useState(false);
 
-  const imgChange = (e) => {
+  const imgChange = (e) => { // image show
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file");

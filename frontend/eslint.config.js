@@ -21,7 +21,7 @@ export default [
       },
     },
     settings: {
-      react: { version: "18.3" }, // React version for rule compatibility
+      react: { version: "18.3" }, 
     },
     plugins: {
       react,
@@ -29,7 +29,7 @@ export default [
       "react-refresh": reactRefresh,
     },
     rules: {
-      // Include default JS + React + Hooks rule sets
+      //  default JS + React + Hooks
       ...js.configs.recommended.rules,
       ...react.configs.recommended.rules,
       ...react.configs["jsx-runtime"].rules,

@@ -40,7 +40,7 @@ const App = () => {
     );
 
   return (
-    // Apply selected DaisyUI theme to the entire app
+    // Apply selected DaisyUI theme
     <div data-theme={theme}>
       {/* Top navigation bar */}
       <Topbar />
@@ -56,14 +56,14 @@ const App = () => {
         {/* Public route: signIn */}
         <Route path="/signIn" element={!authUser ? <SignInView /> : <Navigate to="/" />} />
 
-        {/* Settings page – accessible always */}
+        {/* Settings page –  always */}
         <Route path="/settings" element={<SettingsView />} />
 
         {/* Private route: profile */}
         <Route path="/profile" element={authUser ? <ProfileView /> : <Navigate to="/signIn" />} />
       </Routes>
 
-      {/* Global toast notification system */}
+      {/*  notification system */}
       <Toaster />
     </div>
   );

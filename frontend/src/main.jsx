@@ -1,5 +1,3 @@
-// renders the React app to the DOM
-
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

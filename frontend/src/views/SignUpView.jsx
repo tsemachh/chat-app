@@ -82,7 +82,7 @@ const SignUpView = () => {
                 <input
                   type="text"
                   className="input input-bordered w-full pl-10 bg-base-200/50"
-                  placeholder="John Doe"
+                  placeholder="Lia Makmal"
                   value={data.name}
                   onChange={(e) => setData({ ...data, name: e.target.value })}
                 />
