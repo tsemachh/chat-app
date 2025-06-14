@@ -2,6 +2,17 @@ import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
 import { authState } from "./authState";
+import { socket } from "../socket"; 
+
+import {
+  generateDHKeyPair,
+  exportPublicKey,
+  importPeerPublicKey,
+  deriveSharedKey
+} from "../utils/dh";
+
+let dhKeyPair = null; 
+const sharedKeys = {};
 
 export const chatState = create((set, get) => ({
   messages: [],
@@ -21,6 +32,34 @@ export const chatState = create((set, get) => ({
       set({ isUsersLoading: false });
     }
   },
+
+  initializeDH: async () => {
+    try {
+      dhKeyPair = await generateDHKeyPair();
+      const socket = getSocket();
+      const pubKeyRaw = await exportPublicKey(dhKeyPair.publicKey);
+      const myId = authState.getState().user._id;
+
+      socket.emit("exchange-dh", {
+        from: myId,
+        publicKey: Array.from(pubKeyRaw), // Send as plain array
+      });
+    } catch (e) {
+      console.error("DH init failed:", e);
+    }
+  },
+
+  receiveDHKey: async (fromUserId, publicKeyBytes) => {
+    try {
+      const peerKey = await importPeerPublicKey(new Uint8Array(publicKeyBytes));
+      const sharedKey = await deriveSharedKey(dhKeyPair.privateKey, peerKey);
+      sharedKeys[fromUserId] = sharedKey;
+      console.log("Shared key stored with", fromUserId);
+    } catch (e) {
+      console.error("Failed to derive shared key from", fromUserId, e);
+    }
+  },
+  getSharedKeyForUser: (userId) => sharedKeys[userId] || null,
 
   history: async (userId) => {
     set({ msgsLoading: true });

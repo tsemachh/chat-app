@@ -4,6 +4,14 @@ import { Server } from "socket.io";
 import http from "http";
 import express from "express";
 
+import {
+  storePublicKey,
+  storePrivateKey,
+  computeSharedKey,
+} from "./dhManager.js"; // adjust path if needed
+
+
+
 const app = express(); 
 const server = http.createServer(app); // create an HTTP server using Express
 
@@ -35,6 +43,7 @@ io.on("connection", (socket) => {  // handle new client connections
 
   // Validate userId before storing
   if (userId && typeof userId === "string" && userId.match(/^[0-9a-fA-F]{24}$/)) {
+    socket.userId = userId;
     socketMap[userId] = socket.id;
 
     // Limit concurrent connections per user
@@ -77,6 +86,25 @@ io.on("connection", (socket) => {  // handle new client connections
   socket.on("error", (error) => {
     console.error("Socket error:", error);
   });
+
+  socket.on("exchange-dh", ({ toUserId, publicKey }) => {
+  const fromUserId = socket.userId;
+
+  // 1. Save sender’s public key
+  storePublicKey(fromUserId, publicKey);
+
+  // 2. Relay sender’s public key to recipient
+  const toSocketId = socketMap[toUserId];
+  if (toSocketId) {
+    io.to(toSocketId).emit("receive-dh", {
+      fromUserId,
+      publicKey,
+    });
+  }
+});
+
+
+
 });
 
 export { io, app, server }; 

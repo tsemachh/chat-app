@@ -8,6 +8,7 @@ import SignUpView from "./views/SignUpView";
 import SignInView from "./views/SignInView";
 import SettingsView from "./views/SettingsView";
 import ProfileView from "./views/ProfileView";
+import { chatState } from "./state/chatState";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { authState } from "./state/authState";
@@ -29,6 +30,7 @@ const App = () => {
   // On app load, check if the user is already authenticated
   useEffect(() => {
     checkAuth();
+    
   }, [checkAuth]);
 
   // Show a loading spinner while checking authentication

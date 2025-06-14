@@ -1,11 +1,12 @@
 import { chatState } from "../state/chatState";
-import { useEffect, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import ChatHeader from "./ChatBar";
 import MessageInput from "./ChatInput";
 import ChatLoading from "./skeletons/ChatLoading";
 import { authState } from "../state/authState";
 import { formatMessageTime } from "../lib/utils";
+import { aesDecryptWithKey } from "../utils/encryption";
 
 const ChatView = () => {
   const {
@@ -18,6 +19,25 @@ const ChatView = () => {
   } = chatState();
   const { authUser } = authState();
   const msgEndRef = useRef(null);
+  const [decryptedMessages, setDecryptedMessages] = useState([]);
+
+
+  useEffect(() => {
+  const decryptAll = async () => {
+    const rawMsgs = chatState.getState().messages;
+    const sharedKey = chatState.getState().getSharedKeyForUser(chatState.getState().selectedUser?._id);
+    const decrypted = await Promise.all(rawMsgs.map((msg) => {
+      if (msg.cipherText && sharedKey) {
+        return aesDecryptWithKey(msg.cipherText, sharedKey, msg.iv);
+      } else {
+        return msg.text || "";
+      }
+    }));
+    setDecryptedMessages(decrypted);
+  };
+  decryptAll();
+}, [chatState().messages]);
+
 
   useEffect(() => {
     history(selectedUser._id);
@@ -48,7 +68,8 @@ const ChatView = () => {
       <ChatHeader />
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
+        {messages.map((message, index) => (
+
           <div
             key={message._id}
             className={`chat ${message.fromUserId === authUser._id ? "chat-end" : "chat-start"}`}
@@ -79,7 +100,11 @@ const ChatView = () => {
                   className="sm:max-w-[200px] rounded-md mb-2"
                 />
               )}
-              {message.text && <p>{message.text}</p>}
+              {decryptedMessages[index] && decryptedMessages[index].trim() !== "" && (
+  <p>{decryptedMessages[index]}</p>
+)}
+
+
             </div>
           </div>
         ))}

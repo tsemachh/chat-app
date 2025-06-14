@@ -5,7 +5,9 @@ import { userSocketId, io } from "../lib/realtime.js";
 import { Worker } from "worker_threads";
 import path from "path";
 import { fileURLToPath } from "url";
-import { encText, decText } from "../lib/encryption.js";
+import { encText, decText, aesEncryptWithKey, aesDecryptWithKey } from "../lib/encryption.js";
+
+import { getSharedKey } from "../lib/dhManager.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,6 +27,7 @@ export const UserList = async (req, res) => {
 
 // get chat history
 export const history = async (req, res) => {
+  // get chat history
   const { id: receiverId } = req.params; // other user
   const senderId = req.user._id;
 
@@ -39,11 +42,16 @@ export const history = async (req, res) => {
 
     // decrypt
     let result = [];
-    for(let msg of msgs) {
+    for (let msg of msgs) {
       try {
         if (msg.text && msg.encData) {
           const obj = msg.toObject();
-          obj.text = decText(msg.encData);
+          const sharedKey = getSharedKey(senderId, receiverId);
+          if (sharedKey) {
+            obj.text = aesDecryptWithKey(msg.encData, sharedKey); // ✅ Try DH decryption
+          } else {
+            obj.text = decText(msg.encData); // fallback
+          }
           delete obj.encData;
           result.push(obj);
         } else {
@@ -103,7 +111,12 @@ export async function sendMsg(req, res) {
     let encData;
     if (msgText) {
       try {
-        encData = encText(msgText);
+        const sharedKey = getSharedKey(sourceUserId, targetUserId);
+        if (sharedKey) {
+          encData = aesEncryptWithKey(msgText, sharedKey); // ✅ Use DH key if available
+        } else {
+          encData = encText(msgText); // fallback
+        }
       } catch (error) {
         console.error("Encryption error:", error);
         return res.status(500).json({ error: "Failed to secure message" });
