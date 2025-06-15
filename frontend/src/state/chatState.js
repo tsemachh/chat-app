@@ -26,7 +26,8 @@ export const chatState = create((set, get) => ({
     set({ msgsLoading: true });
     try {
       const res = await axiosInstance.get(`/messages/${userId}`);
-      set({ messages: res.data });
+      // Extract messages array from response object
+      set({ messages: res.data.messages || [] });
     } catch (error) {
       toast.error(error.response.data.message);
     } finally {
