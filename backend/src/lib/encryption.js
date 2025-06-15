@@ -1,18 +1,85 @@
 import crypto from "crypto";
 
 const ALGORITHM = "aes-256-gcm";
-const SECRET_KEY = process.env.ENCRYPTION_SECRET
-  ? Buffer.from(process.env.ENCRYPTION_SECRET, "hex")
-  : crypto.randomBytes(32);
 const IV_LENGTH = 16;
 
-// Encrypt text data
-export const encText = (text) => {
+// Store shared keys for each user pair
+const sharedKeys = new Map();
+
+// Generate Diffie-Hellman parameters
+export const generateDHKeyPair = () => {
+  try {
+    // Create DH with prime length of 2048 bits
+    const dh = crypto.createDiffieHellman(2048);
+    dh.generateKeys();
+
+    return {
+      publicKey: dh.getPublicKey('hex'),
+      privateKey: dh.getPrivateKey('hex'),
+      prime: dh.getPrime('hex'),
+      generator: dh.getGenerator('hex')
+    };
+  } catch (error) {
+    console.error("Error generating DH key pair:", error);
+    throw new Error("Failed to generate key pair");
+  }
+};
+
+// Compute shared secret from our private key and their public key
+export const computeSharedKey = (myPrivateKey, theirPublicKey, prime, generator) => {
+  try {
+    const dh = crypto.createDiffieHellman(Buffer.from(prime, 'hex'), Buffer.from(generator, 'hex'));
+    dh.setPrivateKey(Buffer.from(myPrivateKey, 'hex'));
+
+    const sharedSecret = dh.computeSecret(Buffer.from(theirPublicKey, 'hex'));
+    // Derive a key of appropriate length for AES-256
+    return crypto.createHash('sha256').update(sharedSecret).digest();
+  } catch (error) {
+    console.error("Error computing shared key:", error);
+    throw new Error("Failed to compute shared key");
+  }
+};
+
+// Store the shared key for a user pair
+export const storeSharedKey = (userId1, userId2, sharedKey) => {
+  // Create a consistent key regardless of order
+  const pairKey = [userId1, userId2].sort().join('_');
+  sharedKeys.set(pairKey, sharedKey);
+};
+
+// Get the shared key for a user pair
+export const getSharedKey = (userId1, userId2) => {
+  const pairKey = [userId1, userId2].sort().join('_');
+  return sharedKeys.get(pairKey);
+};
+
+// Check if a shared key exists for a user pair
+export const hasSharedKey = (userId1, userId2) => {
+  const pairKey = [userId1, userId2].sort().join('_');
+  return sharedKeys.has(pairKey);
+};
+
+// Remove shared key for a user
+export const removeSharedKeysForUser = (userId) => {
+  for (const pairKey of sharedKeys.keys()) {
+    if (pairKey.includes(userId)) {
+      sharedKeys.delete(pairKey);
+    }
+  }
+};
+
+// Encrypt text data with shared key
+export const encryptWithSharedKey = (text, userId1, userId2) => {
   try {
     if (!text) throw new Error("No data to encrypt");
 
+    const sharedKey = getSharedKey(userId1, userId2);
+    if (!sharedKey) {
+      throw new Error("No shared key available");
+    }
+
     const iv = crypto.randomBytes(IV_LENGTH);
-    const cipher = crypto.createCipheriv(ALGORITHM, SECRET_KEY, iv);
+    const cipher = crypto.createCipheriv(ALGORITHM, sharedKey, iv);
     cipher.setAAD(Buffer.from("chat-app"));
 
     let encrypted = cipher.update(text, "utf8", "hex");
@@ -31,16 +98,21 @@ export const encText = (text) => {
   }
 };
 
-// decrypt text data
-export const decText = (encData) => {
+// Decrypt text data with shared key
+export const decryptWithSharedKey = (encData, userId1, userId2) => {
   try {
     if (!encData || !encData.encrypted || !encData.iv || !encData.tag) {
       throw new Error("Incomplete encrypted data");
     }
 
+    const sharedKey = getSharedKey(userId1, userId2);
+    if (!sharedKey) {
+      throw new Error("No shared key available");
+    }
+
     const { encrypted, iv, tag } = encData;
 
-    const decipher = crypto.createDecipheriv(ALGORITHM, SECRET_KEY, Buffer.from(iv, "hex"));
+    const decipher = crypto.createDecipheriv(ALGORITHM, sharedKey, Buffer.from(iv, "hex"));
     decipher.setAAD(Buffer.from("chat-app"));
     decipher.setAuthTag(Buffer.from(tag, "hex"));
 

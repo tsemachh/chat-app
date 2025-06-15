@@ -7,7 +7,11 @@ import { userSocketId, io } from "../lib/realtime.js";
 import { Worker } from "worker_threads";
 import path from "path";
 import { fileURLToPath } from "url";
-import { encText, decText } from "../lib/encryption.js";
+import { 
+  encryptWithSharedKey, 
+  decryptWithSharedKey, 
+  hasSharedKey 
+} from "../lib/encryption.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,6 +36,9 @@ export const history = async (req, res) => {
     const { id: userToChatId } = req.params; // other user
     const myId = req.user._id;
 
+    // Check if we have a shared key with this user
+    const hasKey = hasSharedKey(myId, userToChatId);
+
     // get all messages where sender is me or the other person
     const messages = await Message.find({
       $or: [
@@ -44,23 +51,44 @@ export const history = async (req, res) => {
     const decrypted = messages.map(message => {
       try {
         if (message.text && message.encData) {
-          return {
-            ...message.toObject(),
-            text: decText(message.encData),
-            encData: undefined
-          };
+          // Only try to decrypt if we have a shared key
+          if (hasKey) {
+            return {
+              ...message.toObject(),
+              text: decryptWithSharedKey(message.encData, myId, message.fromUserId === myId ? message.toUserId : message.fromUserId),
+              encData: undefined,
+              encrypted: true,
+              decrypted: true
+            };
+          } else {
+            return {
+              ...message.toObject(),
+              text: "[Waiting for secure connection to decrypt]",
+              encData: undefined,
+              encrypted: true,
+              decrypted: false
+            };
+          }
         }
         return message.toObject();
       } catch (error) {
         console.error("Error decrypting message:", error);
         return {
           ...message.toObject(),
-          text: "[Message could not be decrypted]"
+          text: "[Message could not be decrypted]",
+          encrypted: true,
+          decrypted: false
         };
       }
     });
 
-    res.status(200).json(decrypted);
+    // Include key exchange status in response
+    const response = {
+      messages: decrypted,
+      secureChannelEstablished: hasKey
+    };
+
+    res.status(200).json(response);
   } catch (error) {
     console.log("Error in history controller: ", error.message);
     res.status(500).json({ error: "Internal server error" });
@@ -73,16 +101,27 @@ export const sendMsg = async (req, res) => {
     const { id: toUserId } = req.params;
     const fromUserId = req.user._id;
 
+    // Check if we have a shared key with the recipient
+    const secureChannelEstablished = hasSharedKey(fromUserId, toUserId);
+
+    // If text message and no secure channel, return error
+    if (text && !secureChannelEstablished && !image) {
+      return res.status(400).json({ 
+        error: "Cannot send text message without secure channel",
+        secureChannelEstablished: false
+      });
+    }
+
     let imageUrl;
     if (image) {
       // worker thread for image processing to avoid blocking main thread
       const workerPath = path.join(__dirname, "../workers/imgHandler.js");
       const worker = new Worker(workerPath);
-      
+
       // Process image in worker thread
       const imgProcess = new Promise((resolve, reject) => {
         worker.postMessage({ image });
-        
+
         worker.on("message", (result) => {
           worker.terminate();
           if (result.success) {
@@ -91,24 +130,27 @@ export const sendMsg = async (req, res) => {
             reject(new Error(result.error));
           }
         });
-        
+
         worker.on("error", (error) => {
           worker.terminate();
           reject(error);
         });
       });
-      
+
       imageUrl = await imgProcess;
     }
 
     // Encrypt sensitive text data before saving
     let encData;
-    if (text) {
+    if (text && secureChannelEstablished) {
       try {
-        encData = encText(text);
+        encData = encryptWithSharedKey(text, fromUserId, toUserId);
       } catch (error) {
         console.error("Encryption error:", error);
-        return res.status(500).json({ error: "Failed to secure message" });
+        return res.status(500).json({ 
+          error: "Failed to secure message",
+          secureChannelEstablished: true
+        });
       }
     }
 
@@ -126,20 +168,22 @@ export const sendMsg = async (req, res) => {
     // if the recipient is online, send them the new message via Socket.IO
     const recvSockId = userSocketId(toUserId);
     if (recvSockId) {
-      // Send decrypted message to real-time socket
+      // Send message to real-time socket
       const socketMessage = {
         ...newMsg.toObject(),
         text: text, // Send original text for real-time display
-        encData: undefined
+        encData: undefined,
+        secureChannelEstablished: secureChannelEstablished
       };
       io.to(recvSockId).emit("newMsg", socketMessage);
     }
 
-    // Return decrypted message to sender
+    // Return message to sender
     const responseMsg = {
       ...newMsg.toObject(),
       text: text,
-      encData: undefined
+      encData: undefined,
+      secureChannelEstablished: secureChannelEstablished
     };
 
     res.status(201).json(responseMsg);
