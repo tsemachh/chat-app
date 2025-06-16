@@ -1,10 +1,15 @@
-import { X } from "lucide-react";
+import { X, Lock, Unlock } from "lucide-react";
 import { authState } from "../state/authState";
 import { chatState } from "../state/chatState";
 
 const ChatBar = () => {
-  const { selectedUser, setSelectedUser } = chatState();
-  const { onlineUsers } = authState();
+  const { selectedUser, setSelectedUser, initiateKeyExchange, keyExchange, keyExchangeStatus } = chatState();
+  const { onlineUsers, authUser } = authState();
+
+  // Check if we have an active encryption session with this user
+  const sessionId = keyExchange?.generateSessionId(authUser?._id, selectedUser?._id);
+  const hasActiveSession = sessionId && keyExchange?.hasActiveSession(sessionId);
+  const exchangeStatus = keyExchangeStatus[selectedUser?._id] || 'none';
 
   return (
     <div className="p-2.5 border-b border-base-300">
@@ -26,10 +31,39 @@ const ChatBar = () => {
           </div>
         </div>
 
-        {/* Close button */}
-        <button onClick={() => setSelectedUser(null)}>
-          <X />
-        </button>
+        {/* Encryption and close buttons */}
+        <div className="flex items-center gap-2">
+          {/* Encryption status button */}
+          <button
+            onClick={() => !hasActiveSession && initiateKeyExchange(selectedUser._id)}
+            disabled={exchangeStatus === 'initiating' || exchangeStatus === 'pending'}
+            className={`p-2 rounded-lg transition-colors ${
+              hasActiveSession 
+                ? 'text-green-600 bg-green-100 cursor-default' 
+                : 'text-gray-600 hover:bg-gray-100'
+            } ${
+              (exchangeStatus === 'initiating' || exchangeStatus === 'pending') 
+                ? 'opacity-50 cursor-not-allowed' 
+                : ''
+            }`}
+            title={
+              hasActiveSession 
+                ? 'End-to-end encryption is active' 
+                : 'Click to initiate secure key exchange'
+            }
+          >
+            {hasActiveSession ? (
+              <Lock className="w-4 h-4" />
+            ) : (
+              <Unlock className="w-4 h-4" />
+            )}
+          </button>
+
+          {/* Close button */}
+          <button onClick={() => setSelectedUser(null)}>
+            <X />
+          </button>
+        </div>
       </div>
     </div>
   );

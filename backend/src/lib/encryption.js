@@ -1,18 +1,35 @@
 import crypto from "crypto";
 
 const ALGORITHM = "aes-256-gcm";
-const SECRET_KEY = process.env.ENCRYPTION_SECRET
-  ? Buffer.from(process.env.ENCRYPTION_SECRET, "hex")
-  : crypto.randomBytes(32);
 const IV_LENGTH = 16;
+const DH_PRIME_LENGTH = 2048;
 
-// Encrypt text data
-export const encText = (text) => {
+// Diffie-Hellman key exchange utilities
+export const createDHInstance = () => {
+  const dh = crypto.createDiffieHellman(DH_PRIME_LENGTH);
+  dh.generateKeys();
+  return dh;
+};
+
+export const getDHPublicKey = (dh) => {
+  return dh.getPublicKey('base64');
+};
+
+export const computeSharedSecret = (dh, otherPublicKey) => {
+  const otherKeyBuffer = Buffer.from(otherPublicKey, 'base64');
+  const sharedSecret = dh.computeSecret(otherKeyBuffer);
+  // Derive AES key from shared secret using HKDF
+  return crypto.hkdfSync('sha256', sharedSecret, '', 'chat-app-key', 32);
+};
+
+// Encrypt text with shared key
+export const encryptWithSharedKey = (text, sharedKey) => {
   try {
     if (!text) throw new Error("No data to encrypt");
+    if (!sharedKey) throw new Error("No shared key provided");
 
     const iv = crypto.randomBytes(IV_LENGTH);
-    const cipher = crypto.createCipheriv(ALGORITHM, SECRET_KEY, iv);
+    const cipher = crypto.createCipheriv(ALGORITHM, sharedKey, iv);
     cipher.setAAD(Buffer.from("chat-app"));
 
     let encrypted = cipher.update(text, "utf8", "hex");
@@ -31,16 +48,17 @@ export const encText = (text) => {
   }
 };
 
-// decrypt text data
-export const decText = (encData) => {
+// Decrypt text with shared key
+export const decryptWithSharedKey = (encData, sharedKey) => {
   try {
     if (!encData || !encData.encrypted || !encData.iv || !encData.tag) {
       throw new Error("Incomplete encrypted data");
     }
+    if (!sharedKey) throw new Error("No shared key provided");
 
     const { encrypted, iv, tag } = encData;
 
-    const decipher = crypto.createDecipheriv(ALGORITHM, SECRET_KEY, Buffer.from(iv, "hex"));
+    const decipher = crypto.createDecipheriv(ALGORITHM, sharedKey, Buffer.from(iv, "hex"));
     decipher.setAAD(Buffer.from("chat-app"));
     decipher.setAuthTag(Buffer.from(tag, "hex"));
 

@@ -10,6 +10,7 @@ import { connectDB } from "./lib/db.js";
 
 import accsessEndpoint from "./endpoints/accessEndpoint.js";
 import msgEndpoint from "./endpoints/msgEndpoint.js";
+import keyExchangeEndpoint from "./endpoints/keyExchangeEndpoint.js";
 import { app, server } from "./lib/realtime.js";
 
 // security middleware
@@ -33,6 +34,7 @@ app.use( // sets CORS in order for the backend to accept requests from the front
 
 app.use("/api/auth", accsessEndpoint);
 app.use("/api/messages", msgEndpoint);
+app.use("/api/keys", keyExchangeEndpoint);
 
 if (process.env.NODE_ENV === "production") { // checks production mode
   app.use(express.static(path.join(__dirname, "../frontend/dist"))); // serves the static files from  dist

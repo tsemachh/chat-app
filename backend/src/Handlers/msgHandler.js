@@ -7,7 +7,8 @@ import { userSocketId, io } from "../lib/realtime.js";
 import { Worker } from "worker_threads";
 import path from "path";
 import { fileURLToPath } from "url";
-import { encText, decText } from "../lib/encryption.js";
+import { encryptWithSharedKey, decryptWithSharedKey } from "../lib/encryption.js";
+import { getSharedKey, hasActiveSession } from "./keyExchangeHandler.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,13 +41,22 @@ export const history = async (req, res) => {
       ],
     });
 
-    // dec messages for client
+    // Check if there's an active session for decryption
+    const sharedKey = getSharedKey(myId.toString(), userToChatId);
+    
+    // Decrypt messages for client
     const decrypted = messages.map(message => {
       try {
-        if (message.text && message.encData) {
+        if (message.text && message.encData && sharedKey) {
           return {
             ...message.toObject(),
-            text: decText(message.encData),
+            text: decryptWithSharedKey(message.encData, sharedKey),
+            encData: undefined
+          };
+        } else if (message.text && message.encData && !sharedKey) {
+          return {
+            ...message.toObject(),
+            text: "[Key exchange required to decrypt message]",
             encData: undefined
           };
         }
@@ -55,7 +65,8 @@ export const history = async (req, res) => {
         console.error("Error decrypting message:", error);
         return {
           ...message.toObject(),
-          text: "[Message could not be decrypted]"
+          text: "[Message could not be decrypted]",
+          encData: undefined
         };
       }
     });
@@ -72,6 +83,14 @@ export const sendMsg = async (req, res) => {
     const { text, image } = req.body;
     const { id: toUserId } = req.params;
     const fromUserId = req.user._id;
+
+    // Check if key exchange is completed before sending encrypted message
+    if (text && !hasActiveSession(fromUserId.toString(), toUserId)) {
+      return res.status(400).json({ 
+        error: "Key exchange required before sending messages",
+        requiresKeyExchange: true 
+      });
+    }
 
     let imageUrl;
     if (image) {
@@ -105,7 +124,14 @@ export const sendMsg = async (req, res) => {
     let encData;
     if (text) {
       try {
-        encData = encText(text);
+        const sharedKey = getSharedKey(fromUserId.toString(), toUserId);
+        if (!sharedKey) {
+          return res.status(400).json({ 
+            error: "No shared key available for encryption",
+            requiresKeyExchange: true 
+          });
+        }
+        encData = encryptWithSharedKey(text, sharedKey);
       } catch (error) {
         console.error("Encryption error:", error);
         return res.status(500).json({ error: "Failed to secure message" });
