@@ -3,13 +3,17 @@ import { authState } from "../state/authState";
 import { chatState } from "../state/chatState";
 
 const ChatBar = () => {
-  const { selectedUser, setSelectedUser, initiateKeyExchange, keyExchange, keyExchangeStatus } = chatState();
+  const { selectedUser, setSelectedUser, initializeDH, getSharedKeyForUser } = chatState();
   const { onlineUsers, authUser } = authState();
 
-  // Check if we have an active encryption session with this user
-  const sessionId = keyExchange?.generateSessionId(authUser?._id, selectedUser?._id);
-  const hasActiveSession = sessionId && keyExchange?.hasActiveSession(sessionId);
-  const exchangeStatus = keyExchangeStatus[selectedUser?._id] || 'none';
+  // Check if we have an active shared key with this user
+  const hasSharedKey = selectedUser && getSharedKeyForUser(selectedUser._id) !== null;
+
+  const handleInitiateDH = () => {
+    if (!hasSharedKey) {
+      initializeDH();
+    }
+  };
 
   return (
     <div className="p-2.5 border-b border-base-300">
@@ -35,24 +39,19 @@ const ChatBar = () => {
         <div className="flex items-center gap-2">
           {/* Encryption status button */}
           <button
-            onClick={() => !hasActiveSession && initiateKeyExchange(selectedUser._id)}
-            disabled={exchangeStatus === 'initiating' || exchangeStatus === 'pending'}
+            onClick={handleInitiateDH}
             className={`p-2 rounded-lg transition-colors ${
-              hasActiveSession 
+              hasSharedKey 
                 ? 'text-green-600 bg-green-100 cursor-default' 
-                : 'text-gray-600 hover:bg-gray-100'
-            } ${
-              (exchangeStatus === 'initiating' || exchangeStatus === 'pending') 
-                ? 'opacity-50 cursor-not-allowed' 
-                : ''
+                : 'text-blue-600 hover:bg-blue-100'
             }`}
             title={
-              hasActiveSession 
+              hasSharedKey 
                 ? 'End-to-end encryption is active' 
                 : 'Click to initiate secure key exchange'
             }
           >
-            {hasActiveSession ? (
+            {hasSharedKey ? (
               <Lock className="w-4 h-4" />
             ) : (
               <Unlock className="w-4 h-4" />
