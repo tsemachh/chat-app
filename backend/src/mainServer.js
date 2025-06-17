@@ -1,5 +1,3 @@
-// entry point of the backend server
-
 import express from "express"; 
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser"; 
@@ -38,7 +36,7 @@ app.use("/api/keys", keyExchangeEndpoint);
 
 if (process.env.NODE_ENV === "production") { // checks production mode
   app.use(express.static(path.join(__dirname, "../frontend/dist"))); // serves the static files from  dist
- 
+
   app.get("*", (req, res) => {  // if the file doesnt matched the backend API
     res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html")); // return index.html and then the React app shows the chat page. 
   });

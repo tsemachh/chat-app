@@ -6,9 +6,9 @@
   "description": "",
   "main": "src/mainServer.js",
   "scripts": {
-  "dev": "nodemon src/mainServer.js",
-  "start": "node src/mainServer.js",
-  "start:cluster": "node src/cluster.js"
+    "dev": "nodemon src/mainServer.js",
+    "start": "node src/mainServer.js",
+    "start:cluster": "node src/cluster.js"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "buffer": "^6.0.3",
     "cloudinary": "^2.5.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -25,6 +26,7 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.1",
+    "process": "^0.11.10",
     "socket.io": "^4.8.1",
     "xss": "^1.0.15"
   },

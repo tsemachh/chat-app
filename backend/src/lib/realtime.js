@@ -4,6 +4,14 @@ import { Server } from "socket.io";
 import http from "http";
 import express from "express";
 
+import {
+  storePublicKey,
+  storePrivateKey,
+  computeSharedKey,
+} from "./dhManager.js"; // adjust path if needed
+
+
+
 const app = express(); 
 const server = http.createServer(app); // create an HTTP server using Express
 
@@ -24,18 +32,20 @@ export function userSocketId(userId) {
   return socketMap[userId];
 }
 
-// in order to know which users are online
+// track online users
 const socketMap = {}; // {userId: socketId}
+const active_users = new Set(); // another way to track users
 
 io.on("connection", (socket) => {  // handle new client connections
   console.log("user connected", socket.id);
 
   const userId = socket.handshake.query.userId;
-  
+
   // Validate userId before storing
   if (userId && typeof userId === "string" && userId.match(/^[0-9a-fA-F]{24}$/)) {
+    socket.userId = userId;
     socketMap[userId] = socket.id;
-    
+
     // Limit concurrent connections per user
     const userCon = Object.values(socketMap).filter(id => id === socket.id).length;
     if (userCon > 3) {
@@ -116,6 +126,25 @@ io.on("connection", (socket) => {  // handle new client connections
   socket.on("error", (error) => {
     console.error("Socket error:", error);
   });
+
+  socket.on("exchange-dh", ({ toUserId, publicKey }) => {
+  const fromUserId = socket.userId;
+
+  // 1. Save sender’s public key
+  storePublicKey(fromUserId, publicKey);
+
+  // 2. Relay sender’s public key to recipient
+  const toSocketId = socketMap[toUserId];
+  if (toSocketId) {
+    io.to(toSocketId).emit("receive-dh", {
+      fromUserId,
+      publicKey,
+    });
+  }
+});
+
+
+
 });
 
 export { io, app, server }; 

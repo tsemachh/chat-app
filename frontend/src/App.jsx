@@ -1,5 +1,5 @@
-// This file is the entry point of the frontend React application
-
+// Main app component
+// TODO: refactor this file
 
 import Topbar from "./components/Topbar";
 
@@ -8,6 +8,7 @@ import SignUpView from "./views/SignUpView";
 import SignInView from "./views/SignInView";
 import SettingsView from "./views/SettingsView";
 import ProfileView from "./views/ProfileView";
+import { chatState } from "./state/chatState";
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { authState } from "./state/authState";
@@ -21,12 +22,15 @@ const App = () => {
   const { authUser, checkAuth, isCheckingAuth, onlineUsers } = authState(); // Auth store state
   const { theme } = themeState(); // Theme store
 
+  // FIXME: remove before production
   console.log({ onlineUsers });
   console.log({ authUser });
+  console.log('App rendered at:', new Date().toISOString());
 
   // On app load, check if the user is already authenticated
   useEffect(() => {
     checkAuth();
+    
   }, [checkAuth]);
 
   // Show a loading spinner while checking authentication
@@ -38,7 +42,7 @@ const App = () => {
     );
 
   return (
-    // Apply selected DaisyUI theme to the entire app
+    // Apply selected DaisyUI theme
     <div data-theme={theme}>
       {/* Top navigation bar */}
       <Topbar />
@@ -54,14 +58,14 @@ const App = () => {
         {/* Public route: signIn */}
         <Route path="/signIn" element={!authUser ? <SignInView /> : <Navigate to="/" />} />
 
-        {/* Settings page – accessible always */}
+        {/* Settings page –  always */}
         <Route path="/settings" element={<SettingsView />} />
 
         {/* Private route: profile */}
         <Route path="/profile" element={authUser ? <ProfileView /> : <Navigate to="/signIn" />} />
       </Routes>
 
-      {/* Global toast notification system */}
+      {/*  notification system */}
       <Toaster />
     </div>
   );

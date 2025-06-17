@@ -2,14 +2,19 @@ import { useRef, useState } from "react";
 import { chatState } from "../state/chatState";
 import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
+import { aesEncryptWithKey } from "../utils/encryption";
+
 
 const ChatInput = () => {
   const [text, setText] = useState("");
   const [imagePreview, imgPreview] = useState(null);
   const fileInputRef = useRef(null);
-  const { sendMsg } = chatState();
+  const { sendMsg, getSharedKeyForUser, selectedUser } = chatState();
 
-  const imgChange = (e) => {
+  // for future implementation
+  const [isUploading, setIsUploading] = useState(false);
+
+  const imgChange = (e) => { // image show
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file");
@@ -33,10 +38,23 @@ const ChatInput = () => {
     if (!text.trim() && !imagePreview) return;
 
     try {
-      await sendMsg({
-        text: text.trim(),
-        image: imagePreview,
-      });
+      const messageData = {
+        image: imagePreview || null,
+      };
+
+      if (text.trim()) {
+        const sharedKey = getSharedKeyForUser(selectedUser._id);
+
+        if (sharedKey) {
+          const { cipherText, iv } = await aesEncryptWithKey(text.trim(), sharedKey);
+          messageData.cipherText = cipherText;
+          messageData.iv = iv;
+        } else {
+          messageData.text = text.trim(); // fallback if key not ready
+        }
+      }
+
+      await sendMsg(messageData);
 
       // Clear form
       setText("");
@@ -44,8 +62,10 @@ const ChatInput = () => {
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       console.error("Failed to send message:", error);
+      toast.error("Could not send message");
     }
   };
+
 
   return (
     <div className="p-4 w-full">
@@ -87,10 +107,11 @@ const ChatInput = () => {
           />
 
           <button
-            type="button"
-            className={`hidden sm:flex btn btn-circle
-                     ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
-            onClick={() => fileInputRef.current?.click()}
+          type="button"
+          className={`hidden sm:flex btn btn-circle ${imagePreview ? 
+            "text-emerald-500" : 
+            "text-zinc-400"}`}
+          onClick={() => fileInputRef.current?.click()}
           >
             <Image size={20} />
           </button>

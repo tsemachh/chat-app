@@ -79,3 +79,38 @@ export const hashData = (data) => {
 export const secureToken = (length = 32) => {
   return crypto.randomBytes(length).toString("hex");
 };
+
+
+// Encrypt a message using AES-256-GCM with a provided key (Buffer)
+export function aesEncryptWithKey(plaintext, key) {
+  const iv = crypto.randomBytes(12); // GCM standard IV size is 12 bytes
+  const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
+
+  const encrypted = Buffer.concat([
+    cipher.update(plaintext, "utf8"),
+    cipher.final()
+  ]);
+
+  const authTag = cipher.getAuthTag();
+
+  return {
+    cipherText: encrypted.toString("hex"),
+    iv: iv.toString("hex"),
+    tag: authTag.toString("hex"),
+  };
+}
+
+// Decrypt a message using AES-256-GCM with a provided key (Buffer)
+export function aesDecryptWithKey(encData, key) {
+  const { cipherText, iv, tag } = encData;
+
+  const decipher = crypto.createDecipheriv("aes-256-gcm", key, Buffer.from(iv, "hex"));
+  decipher.setAuthTag(Buffer.from(tag, "hex"));
+
+  const decrypted = Buffer.concat([
+    decipher.update(Buffer.from(cipherText, "hex")),
+    decipher.final()
+  ]);
+
+  return decrypted.toString("utf8");
+}

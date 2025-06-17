@@ -102,4 +102,4 @@ export const authState = create((set, get) => ({
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();
   },
-}));
+})); 
